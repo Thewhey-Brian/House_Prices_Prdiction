@@ -41,7 +41,7 @@ Alley: Type of alley access to property
 
        Grvl	Gravel
        Pave	Paved
-       NA 	No alley access
+       NA [Changed to "No"] 	No alley access
 		
 LotShape: General shape of property
 
@@ -251,19 +251,19 @@ MasVnrArea: Masonry veneer area in square feet
 
 ExterQual: Evaluates the quality of the material on the exterior 
 		
-       Ex	Excellent
-       Gd	Good
-       TA	Average/Typical
-       Fa	Fair
-       Po	Poor
+       Ex ["5"]	Excellent
+       Gd ["4"] Good
+       TA ["3"]	Average/Typical
+       Fa ["2"] Fair
+       Po ["1"] Poor
 		
 ExterCond: Evaluates the present condition of the material on the exterior
 		
-       Ex	Excellent
-       Gd	Good
-       TA	Average/Typical
-       Fa	Fair
-       Po	Poor
+       Ex ["5"]	Excellent
+       Gd ["4"] Good
+       TA ["3"]	Average/Typical
+       Fa ["2"] Fair
+       Po ["1"] Poor
 		
 Foundation: Type of foundation
 		
@@ -339,11 +339,11 @@ Heating: Type of heating
 		
 HeatingQC: Heating quality and condition
 
-       Ex	Excellent
-       Gd	Good
-       TA	Average/Typical
-       Fa	Fair
-       Po	Poor
+       Ex ["5"]	Excellent
+       Gd ["4"] Good
+       TA ["3"]	Average/Typical
+       Fa ["2"] Fair
+       Po ["1"] Poor
 		
 CentralAir: Central air conditioning
 
