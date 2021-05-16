@@ -1,0 +1,42 @@
+---
+title: "Data Processing"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libaraies needed:
+
+```{r}
+library(tidyverse)
+library(skimr)
+```
+
+## Read in data
+```{r}
+dat <- read_csv("data/train.csv")
+skim(dat)
+```
+
+## Change data class
+```{r}
+glimpse(dat)
+
+dat <- dat %>%
+    mutate_if(is.character, as.factor) %>%
+    mutate(Id = as.factor(Id),
+           MSSubClass = as.factor(MSSubClass),
+           Alley = as.factor(replace_na(as.character(Alley), "No")),
+           ExterQual = recode(ExterQual, "Ex" = 5, "Gd" = 4,"TA" = 3,"Fa" = 2,"Po" = 1),
+           ExterCond = recode(ExterCond, "Ex" = 5, "Gd" = 4,"TA" = 3,"Fa" = 2,"Po" = 1),
+           BsmtQual = as.factor(replace_na(as.character(BsmtQual), "NoBsmt")),
+           BsmtCond = as.factor(replace_na(as.character(BsmtCond), "NoBsmt")),
+           BsmtExposure = as.factor(replace_na(as.character(BsmtExposure), "NoBsmt")),
+           BsmtFinType1 = as.factor(replace_na(as.character(BsmtFinType1), "NoBsmt")),
+           BsmtFinType2 = as.factor(replace_na(as.character(BsmtFinType2), "NoBsmt")),
+           HeatingQC = recode(HeatingQC , "Ex" = 5, "Gd" = 4,"TA" = 3,"Fa" = 2,"Po" = 1))
+           
+glimpse(dat)
+```
