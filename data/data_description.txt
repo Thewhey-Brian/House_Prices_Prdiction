@@ -281,7 +281,7 @@ BsmtQual: Evaluates the height of the basement
        TA	Typical (80-89 inches)
        Fa	Fair (70-79 inches)
        Po	Poor (<70 inches
-       NA	No Basement
+       NA ["NoBsmt"]	No Basement
 		
 BsmtCond: Evaluates the general condition of the basement
 
@@ -290,7 +290,7 @@ BsmtCond: Evaluates the general condition of the basement
        TA	Typical - slight dampness allowed
        Fa	Fair - dampness or some cracking or settling
        Po	Poor - Severe cracking, settling, or wetness
-       NA	No Basement
+       NA	["NoBsmt"] No Basement
 	
 BsmtExposure: Refers to walkout or garden level walls
 
@@ -298,7 +298,7 @@ BsmtExposure: Refers to walkout or garden level walls
        Av	Average Exposure (split levels or foyers typically score average or above)	
        Mn	Mimimum Exposure
        No	No Exposure
-       NA	No Basement
+       NA	["NoBsmt"] No Basement
 	
 BsmtFinType1: Rating of basement finished area
 
@@ -308,7 +308,7 @@ BsmtFinType1: Rating of basement finished area
        Rec	Average Rec Room
        LwQ	Low Quality
        Unf	Unfinshed
-       NA	No Basement
+       NA	["NoBsmt"] No Basement
 		
 BsmtFinSF1: Type 1 finished square feet
 
@@ -320,7 +320,7 @@ BsmtFinType2: Rating of basement finished area (if multiple types)
        Rec	Average Rec Room
        LwQ	Low Quality
        Unf	Unfinshed
-       NA	No Basement
+       NA	["NoBsmt"] No Basement
 
 BsmtFinSF2: Type 2 finished square feet
 
