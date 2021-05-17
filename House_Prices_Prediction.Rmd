@@ -16,6 +16,7 @@ library(ggplot2)
 library(tidyverse)
 library(leaflet)
 library(htmltools)
+library(kableExtra)
 load("imputed.rda")
 # data_path <- "https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/house.csv"
 # house <- read_delim(data_path, col_names = T, delim = ",")[, -1]
@@ -129,6 +130,43 @@ renderPlotly({
 House Price Analysis {data-icon="fa-signal"}
 =====================================     
 
+## Regression
+
+### Regression
+
+**Selecting Best Lambda (with cross-validation)**
+```{r}
+library(glmnet)
+load("imputed.rda")
+set.seed(123)
+# dat.train <- house[train<-sample(1:nrow(house), floor(nrow(house)*0.7)),]
+# dat.test <- house[-train,]
+dat.train <- house
+X <- model.matrix(SalePrice ~ ., data = dat.train)[, -1]
+Y <- (dat.train$SalePrice - mean(dat.train$SalePrice))/sqrt(var(dat.train$SalePrice))
+lasso_fit <- cv.glmnet(X, Y, alpha = 1)
+best_lambda <- lasso_fit$lambda.min
+best_model <- glmnet(X, Y, alpha = 1, lambda = best_lambda)
+plot(lasso_fit)
+
+```
+
+###
+**Selected Variables From LASSO Regression**
+```{r}
+fcts <- as.data.frame(as.matrix(coef(best_model))) %>% 
+  filter(s0 != 0) %>% 
+  arrange(desc(s0)) %>% 
+  rownames_to_column(var = "Variables") %>% 
+  mutate(Coefficients = round(s0, 6)) %>%  
+  select(-s0)
+kbl(fcts) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+```
+
+## Random Forst
+
+## CART
 
 Predictions {data-icon="fa-chart-line"}
 =====================================   
