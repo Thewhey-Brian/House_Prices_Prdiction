@@ -29,20 +29,20 @@ Column {.sidebar}
 ### Options
 ```{r}
 selectInput("category", label = h5("Category"), 
-    choices = list("Natural log" = "log", "Raw" = "raw"), 
+    choices = list("Neighborhood" = "Neighborhood", 
+                   "Overall quality" = "OverallQual", 
+                   "Exterior quality" = "ExterQual", 
+                   "Kitchen quality" = "KitchenQual", 
+                   "Size of garage in car capacity" = "GarageCars", 
+                   "Construction date" = "YearBuilt"), 
     selected = 1)
-checkboxInput("smooth", label = "Smooth", value = TRUE)
-selectInput("type", label = h5("Type"), 
-    choices = list("Confirmed" = "confirmed", 
-                   "Death" = "death", 
-                   "Recovered" = "recovered"), 
-    selected = 1)
-dateRangeInput("dates", 
-               start = "2020-01-22", 
-               min = "2020-01-22",  
-               format = "yyyy-mm-dd", 
-               label = h5("Date range"))
-checkboxInput("beginning", label = "Start by the first case", value = FALSE)
+selectInput("sub_category", label = h5("Sub_Category"), 
+    choices = list("Neighborhood" = "Neighborhood", 
+                   "Overall quality" = "OverallQual", 
+                   "Exterior quality" = "ExterQual", 
+                   "Kitchen quality" = "KitchenQual", 
+                   "Size of garage in car capacity" = "GarageCars"), 
+    selected = "OverallQual")
 ```
 
 Column {data-width=650}
@@ -51,10 +51,21 @@ Column {data-width=650}
 ### Chart A
 
 ```{r}
-ggplotly(ggplot(house, aes(x = Neighborhood, y = SalePrice)) +
-    geom_col() +
-    theme(axis.text.x = element_text(angle = 45)) +
-    labs(x = "Neighborhood", y = "Sale Prices", title = "Sale Prices by Neighborhood"))
+dat <- reactive({
+  return(house)
+})
+ctgy <- reactive({
+  return(input$category)
+})
+sub_ctgy <- reactive({
+  return(input$sub_category)
+})
+renderPlotly({
+  ggplotly(ggplot(dat(), aes(x = !!as.name(ctgy()), y = SalePrice)) +
+      geom_col(aes(fill = !!as.name(sub_ctgy()))) +
+      theme(axis.text.x = element_text(angle = 45)) +
+      labs(x = ctgy(), y = "Sale Prices", title = paste0("Sale Prices by ", ctgy())))
+})
 ```
 
 Column {data-width=350}
@@ -109,7 +120,10 @@ output$leaflet_map <- renderLeaflet({
 ### Chart C
 
 ```{r}
-
+ggplotly(ggplot(house, aes(x = Neighborhood, y = SalePrice)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 45)) +
+    labs(x = "Neighborhood", y = "Sale Prices", title = "Sale Prices by Neighborhood"))
 ```
 
 House Price Analysis {data-icon="fa-signal"}
