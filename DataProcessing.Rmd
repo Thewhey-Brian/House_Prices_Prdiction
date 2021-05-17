@@ -89,9 +89,15 @@ load("imputed.rda")
 head(house)
 
 dim(house)
+
+set.seed(100)
+house$HighPrice <- ifelse(house$SalePrice >= 180000, 1, 0)
+dat.train <- house[train<-sample(1:nrow(house), floor(nrow(house)*0.7)),]
+dat.test <- house[-train,]
 ```
 
 ```{r, eval=FALSE}
+set.seed(100)
 tune_rf <- tuneRF(x = house[,2:80], y = house[,1], ntreeTry = 500)
 tune_rf
 tune_rf[which.min(tune_rf[,2]),1]
@@ -99,9 +105,42 @@ tune_rf[which.min(tune_rf[,2]),1]
 
 ```{r}
 m <- 26
-
+set.seed(100)
 rf_m <- randomForest(x = house[,2:80], y = house[,1], mtry = m, ntree = 1000,
                      keep.forest = TRUE)
 plot(rf_m)
 varImpPlot(rf_m, cex = 0.6)
 ```
+
+## CART
+
+```{r}
+library(rpart)
+library(rpart.plot)
+
+# Set HighPrice
+house1  <- dat.train[2:81]
+# Build the tree
+tree <- rpart(HighPrice ~ ., data = house1, method = "class",  
+              control = rpart.control(minsplit = 10, cp = 0.001))
+prp(tree, cex = 0.4, extra = 0)
+plotcp(tree)
+tree$variable.importance
+
+# Prune the tree
+bestcp <- tree$cptable[which.min(tree$cptable[, "xerror"]), "CP"]
+tree.pruned <- prune(tree, cp = bestcp)
+prp(tree.pruned, faclen = 0, cex = 0.8, extra = 1)
+plotcp(tree.pruned)
+tree.pruned$variable.importance
+
+# Generate predicted values
+tree.yhat <- predict(tree.pruned, newdata = dat.test, type = "class")
+
+# Compute the residuals
+res.tree.test <- (as.integer(dat.test$HighPrice) - 1) - (as.integer(tree.yhat) - 1)
+mse.tree.test <- sum(res.tree.test^2)/length(res.tree.test)
+mse.tree.test
+```
+
+
