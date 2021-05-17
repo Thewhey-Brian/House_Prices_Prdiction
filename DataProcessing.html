@@ -2679,13 +2679,34 @@ Y_test &lt;- dat.test$SalePrice
 lasso_pred = predict(best_model, newx = X_test) 
 mean((lasso_pred - Y_test)^2)</code></pre>
 <pre><code>## [1] 1108162162</code></pre>
-<pre class="r"><code>fcts &lt;- as.matrix(coef(best_model))
-fcts[fcts != 0]</code></pre>
-<pre><code>##  [1] -1.353681e+05 -1.307721e+03  1.256212e+04  1.515667e+04  8.142515e+03
-##  [6]  1.588705e+04  2.441716e+01  8.139325e+02  6.871434e-02  9.268701e+03
-## [11]  5.426004e+03 -1.714927e+03  5.017623e+02  7.883164e+00  6.010987e+00
-## [16]  8.624178e+00  3.611791e+01  1.223080e+04  3.941504e+03  9.574727e+03
-## [21]  2.089687e+00  5.650040e+00 -1.421047e+04</code></pre>
+<pre class="r"><code>fcts &lt;- as.data.frame(as.matrix(coef(best_model))) %&gt;% 
+  filter(s0 != 0) %&gt;% 
+  arrange(s0)
+fcts</code></pre>
+<pre><code>##                                s0
+## (Intercept)         -1.353681e+05
+## PoolQCGd            -1.421047e+04
+## BsmtExposureNo      -1.714927e+03
+## MSZoningRM          -1.307721e+03
+## MasVnrArea           6.871434e-02
+## GarageArea           2.089687e+00
+## WoodDeckSF           5.650040e+00
+## TotalBsmtSF          6.010987e+00
+## BsmtFinSF1           7.883164e+00
+## `1stFlrSF`           8.624178e+00
+## YearBuilt            2.441716e+01
+## GrLivArea            3.611791e+01
+## BsmtFinType1GLQ      5.017623e+02
+## RoofMatlWdShngl      8.139325e+02
+## Fireplaces           3.941504e+03
+## BsmtExposureGd       5.426004e+03
+## NeighborhoodStoneBr  8.142515e+03
+## ExterQual            9.268701e+03
+## GarageCars           9.574727e+03
+## KitchenQual          1.223080e+04
+## NeighborhoodNoRidge  1.256212e+04
+## NeighborhoodNridgHt  1.515667e+04
+## OverallQual          1.588705e+04</code></pre>
 </div>
 
 

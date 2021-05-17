@@ -162,8 +162,9 @@ Y_test <- dat.test$SalePrice
 lasso_pred = predict(best_model, newx = X_test) 
 mean((lasso_pred - Y_test)^2)
 
-
-fcts <- as.matrix(coef(best_model))
-fcts[fcts != 0]
+fcts <- as.data.frame(as.matrix(coef(best_model))) %>% 
+  filter(s0 != 0) %>% 
+  arrange(s0)
+fcts
 ```
 

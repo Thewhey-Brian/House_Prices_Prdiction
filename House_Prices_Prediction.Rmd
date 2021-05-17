@@ -9,15 +9,38 @@ output:
     #theme: yeti
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 library(flexdashboard)
 library(plotly)
 library(ggplot2)
 load("imputed.rda")
+# data_path <- "https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/house.csv"
+# house <- read_delim(data_path, col_names = T, delim = ",")[, -1]
 ```
 
 Overview {data-icon="fa-globe"}
 ===================================== 
+
+Column {.sidebar} 
+-----------------------------------------------------------------------
+### Options
+```{r}
+selectInput("category", label = h5("Category"), 
+    choices = list("Natural log" = "log", "Raw" = "raw"), 
+    selected = 1)
+checkboxInput("smooth", label = "Smooth", value = TRUE)
+selectInput("type", label = h5("Type"), 
+    choices = list("Confirmed" = "confirmed", 
+                   "Death" = "death", 
+                   "Recovered" = "recovered"), 
+    selected = 1)
+dateRangeInput("dates", 
+               start = "2020-01-22", 
+               min = "2020-01-22",  
+               format = "yyyy-mm-dd", 
+               label = h5("Date range"))
+checkboxInput("beginning", label = "Start by the first case", value = FALSE)
+```
 
 Column {data-width=650}
 -----------------------------------------------------------------------
