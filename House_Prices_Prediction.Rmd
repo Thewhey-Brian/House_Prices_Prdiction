@@ -13,6 +13,9 @@ output:
 library(flexdashboard)
 library(plotly)
 library(ggplot2)
+library(tidyverse)
+library(leaflet)
+library(htmltools)
 load("imputed.rda")
 # data_path <- "https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/house.csv"
 # house <- read_delim(data_path, col_names = T, delim = ",")[, -1]
@@ -61,6 +64,46 @@ Column {data-width=350}
 
 ```{r}
 
+data <- read.csv("https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/train.csv")
+selectInput(
+  inputId = "location",
+  label = h3("location"),
+  choices = data$Neighborhood,
+  selected = "Bloomington Heights"
+)
+
+
+df <- read.csv(textConnection(
+  "Name,Lat,Long
+  Bloomington Heights,42.056644274895284, -93.63526181058937
+veenker, 42.04142369751746, -93.65023742853793
+Bluestem,42.0095650731166, -93.64665830155805
+Briardale,42.053002106739584, -93.62879954388383
+Brookside,42.02884920672281, -93.63032155898088
+Clear Creek,42.03705208507868, -93.64895887214703
+College Creek,42.02269846599868, -93.6515424013471
+Crawford,42.01930934417932, -93.64862271362712
+Edwards,42.01568554384159, -93.68586267036599
+Gilbert,42.10544858571573, -93.64522318500062
+Iowa DOT and Rail Road,42.1276694178863, -93.5561396432164
+Meadow Village,41.992695573405484, -93.6026447015585
+Mitchell,41.99083468027784, -93.60098892853924
+North Ames,42.07682167112102, -93.63118339081626
+Northridge, 42.04809379230197, -93.64674540155703
+Northridge Heights,42.0599643528609, -93.64942838621059
+Northwest Ames,42.02838544966453, -93.69847465364788
+Old Town,42.02915364963401, -93.61433172684566
+South & West of Iowa State University,42.02285281109253, -93.65391104048935
+Sawyer,42.034340963221894, -93.6770872592305
+Sawyer West,42.034411324379725, -93.68651801021988
+Somerset,42.05202886092242, -93.64514354404335
+Stone Brook,42.05974506919148, -93.6376352032556"
+))
+
+leafletOutput("leaflet_map")
+output$leaflet_map <- renderLeaflet({
+  leaflet(df) %>% addTiles() %>% addMarkers(~Long, ~Lat, popup = ~htmlEscape(Name))
+})
 ```
 
 ### Chart C
