@@ -56,4 +56,7 @@ Predictions {data-icon="fa-chart-line"}
 About {data-icon="fa-table"}
 =====================================     
 
+**Data Reference: ** [House Prices - Advanced Regression Techniques: Predict sales prices and practice feature engineering, RFs, and gradient boosting](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview)
+
+
 
