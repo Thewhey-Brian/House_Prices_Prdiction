@@ -51,21 +51,10 @@ Column {data-width=650}
 ### Chart A
 
 ```{r}
-dat <- reactive({
-  return(house)
-})
-ctgy <- reactive({
-  return(input$category)
-})
-sub_ctgy <- reactive({
-  return(input$sub_category)
-})
-renderPlotly({
-  ggplotly(ggplot(dat(), aes(x = !!as.name(ctgy()), y = SalePrice)) +
-      geom_col(aes(fill = !!as.name(sub_ctgy()))) +
-      theme(axis.text.x = element_text(angle = 45)) +
-      labs(x = ctgy(), y = "Sale Prices", title = paste0("Sale Prices by ", ctgy())))
-})
+ggplotly(ggplot(house, aes(x = Neighborhood, y = SalePrice)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 45)) +
+    labs(x = "Neighborhood", y = "Sale Prices", title = "Sale Prices by Neighborhood"))
 ```
 
 Column {data-width=350}
@@ -120,10 +109,21 @@ output$leaflet_map <- renderLeaflet({
 ### Chart C
 
 ```{r}
-ggplotly(ggplot(house, aes(x = Neighborhood, y = SalePrice)) +
-    geom_col() +
-    theme(axis.text.x = element_text(angle = 45)) +
-    labs(x = "Neighborhood", y = "Sale Prices", title = "Sale Prices by Neighborhood"))
+dat <- reactive({
+  return(house)
+})
+ctgy <- reactive({
+  return(input$category)
+})
+sub_ctgy <- reactive({
+  return(input$sub_category)
+})
+renderPlotly({
+  ggplotly(ggplot(dat(), aes(x = !!as.name(ctgy()), y = SalePrice)) +
+      geom_col(aes(fill = !!as.name(sub_ctgy()))) +
+      theme(axis.text.x = element_text(angle = 45)) +
+      labs(x = ctgy(), y = "Sale Prices", title = paste0("Sale Prices by ", ctgy())))
+})
 ```
 
 House Price Analysis {data-icon="fa-signal"}
