@@ -142,5 +142,27 @@ res.tree.test <- (as.integer(dat.test$HighPrice) - 1) - (as.integer(tree.yhat) -
 mse.tree.test <- sum(res.tree.test^2)/length(res.tree.test)
 mse.tree.test
 ```
+## Linear Regreesion
+```{r}
+library(glmnet)
+load("imputed.rda")
+set.seed(123)
+dat.train <- house[train<-sample(1:nrow(house), floor(nrow(house)*0.7)),]
+dat.test <- house[-train,]
+X <- model.matrix(SalePrice ~ ., data = dat.train)[, -1]
+Y <- dat.train$SalePrice
+lasso_fit <- cv.glmnet(X, Y, alpha = 1)
+plot(lasso_fit)
+best_lambda <- lasso_fit$lambda.min
+best_lambda
+best_model <- glmnet(X, Y, alpha = 1, lambda = best_lambda)
+X_test <- model.matrix(SalePrice ~ ., data = dat.test)[, -1]
+Y_test <- dat.test$SalePrice
+lasso_pred = predict(best_model, newx = X_test) 
+mean((lasso_pred - Y_test)^2)
 
+
+fcts <- as.matrix(coef(best_model))
+fcts[fcts != 0]
+```
 
