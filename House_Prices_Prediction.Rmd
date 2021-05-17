@@ -1,14 +1,23 @@
 ---
-title: "House_Prices_Prediction"
+title: "House Prices Prediction"
+runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
+    theme: cerulean
+    #theme: yeti
 ---
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(plotly)
+library(ggplot2)
+load("imputed.rda")
 ```
+
+Overview {data-icon="fa-globe"}
+===================================== 
 
 Column {data-width=650}
 -----------------------------------------------------------------------
@@ -16,7 +25,10 @@ Column {data-width=650}
 ### Chart A
 
 ```{r}
-
+ggplotly(ggplot(house, aes(x = Neighborhood, y = SalePrice)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 45)) +
+    labs(x = "Neighborhood", y = "Sale Prices", title = "Sale Prices by Neighborhood"))
 ```
 
 Column {data-width=350}
@@ -33,4 +45,15 @@ Column {data-width=350}
 ```{r}
 
 ```
+
+House Price Analysis {data-icon="fa-signal"}
+=====================================     
+
+
+Predictions {data-icon="fa-chart-line"}
+=====================================   
+
+About {data-icon="fa-table"}
+=====================================     
+
 
