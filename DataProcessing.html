@@ -354,49 +354,14 @@ pre code {
 
 <div id="libaraies-needed" class="section level2">
 <h2>Libaraies needed:</h2>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --</code></pre>
-<pre><code>## v ggplot2 3.3.2     v purrr   0.3.4
-## v tibble  3.1.1     v dplyr   1.0.2
-## v tidyr   1.1.2     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.5.0</code></pre>
-<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(skimr)</code></pre>
-<pre><code>## Warning: package &#39;skimr&#39; was built under R version 4.0.3</code></pre>
+<pre class="r"><code>library(tidyverse)
+library(skimr)
+library(randomForest)</code></pre>
 </div>
 <div id="read-in-data" class="section level2">
 <h2>Read in data</h2>
-<pre class="r"><code>dat &lt;- read_csv(&quot;data/train.csv&quot;)</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   .default = col_character(),
-##   Id = col_double(),
-##   MSSubClass = col_double(),
-##   LotFrontage = col_double(),
-##   LotArea = col_double(),
-##   OverallQual = col_double(),
-##   OverallCond = col_double(),
-##   YearBuilt = col_double(),
-##   YearRemodAdd = col_double(),
-##   MasVnrArea = col_double(),
-##   BsmtFinSF1 = col_double(),
-##   BsmtFinSF2 = col_double(),
-##   BsmtUnfSF = col_double(),
-##   TotalBsmtSF = col_double(),
-##   `1stFlrSF` = col_double(),
-##   `2ndFlrSF` = col_double(),
-##   LowQualFinSF = col_double(),
-##   GrLivArea = col_double(),
-##   BsmtFullBath = col_double(),
-##   BsmtHalfBath = col_double(),
-##   FullBath = col_double()
-##   # ... with 18 more columns
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
-<pre class="r"><code>skim(dat)</code></pre>
+<pre class="r"><code>dat &lt;- read_csv(&quot;data/train.csv&quot;)
+skim(dat)</code></pre>
 <table>
 <caption>Data summary</caption>
 <tbody>
@@ -1511,7 +1476,19 @@ pre code {
            BsmtExposure = as.factor(replace_na(as.character(BsmtExposure), &quot;NoBsmt&quot;)),
            BsmtFinType1 = as.factor(replace_na(as.character(BsmtFinType1), &quot;NoBsmt&quot;)),
            BsmtFinType2 = as.factor(replace_na(as.character(BsmtFinType2), &quot;NoBsmt&quot;)),
-           HeatingQC = recode(HeatingQC , &quot;Ex&quot; = 5, &quot;Gd&quot; = 4,&quot;TA&quot; = 3,&quot;Fa&quot; = 2,&quot;Po&quot; = 1))
+           HeatingQC = recode(HeatingQC , &quot;Ex&quot; = 5, &quot;Gd&quot; = 4,&quot;TA&quot; = 3,&quot;Fa&quot; = 2,&quot;Po&quot; = 1),
+           KitchenQual = recode(KitchenQual, &quot;Ex&quot; = 5, &quot;Gd&quot; = 4,&quot;TA&quot; = 3,&quot;Fa&quot; = 2,&quot;Po&quot; = 1),
+           Functional = recode(Functional, &quot;Typ&quot; = 8, &quot;Min1&quot; = 7,&quot;Min2&quot; = 6,&quot;Mod&quot; = 5,
+                               &quot;Maj1&quot; = 4, &quot;Maj2&quot; = 3, &quot;Sev&quot; = 2, &quot;Sal&quot; = 1),
+           FireplaceQu = as.factor(replace_na(as.character(FireplaceQu), &quot;No&quot;)),
+           GarageType = as.factor(replace_na(as.character(GarageType), &quot;No&quot;)),
+           GarageFinish = as.factor(replace_na(as.character(GarageFinish), &quot;No&quot;)),
+           GarageQual = as.factor(replace_na(as.character(GarageQual), &quot;No&quot;)),
+           GarageCond = as.factor(replace_na(as.character(GarageCond), &quot;No&quot;)),
+           PoolQC = as.factor(replace_na(as.character(PoolQC), &quot;No&quot;)),
+           Fence = as.factor(replace_na(as.character(Fence), &quot;No&quot;)),
+           MiscFeature = as.factor(replace_na(as.character(MiscFeature), &quot;None&quot;)),
+           )
            
 glimpse(dat)</code></pre>
 <pre><code>## Rows: 1,460
@@ -1569,11 +1546,11 @@ glimpse(dat)</code></pre>
 ## $ HalfBath      &lt;dbl&gt; 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,~
 ## $ BedroomAbvGr  &lt;dbl&gt; 3, 3, 3, 3, 4, 1, 3, 3, 2, 2, 3, 4, 2, 3, 2, 2, 2, 2, 3,~
 ## $ KitchenAbvGr  &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,~
-## $ KitchenQual   &lt;fct&gt; Gd, TA, Gd, Gd, Gd, TA, Gd, TA, TA, TA, TA, Ex, TA, Gd, ~
+## $ KitchenQual   &lt;dbl&gt; 4, 3, 4, 4, 4, 3, 4, 3, 3, 3, 3, 5, 3, 4, 3, 3, 3, 3, 4,~
 ## $ TotRmsAbvGrd  &lt;dbl&gt; 8, 6, 6, 7, 9, 5, 7, 7, 8, 5, 5, 11, 4, 7, 5, 5, 5, 6, 6~
-## $ Functional    &lt;fct&gt; Typ, Typ, Typ, Typ, Typ, Typ, Typ, Typ, Min1, Typ, Typ, ~
+## $ Functional    &lt;dbl&gt; 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,~
 ## $ Fireplaces    &lt;dbl&gt; 0, 1, 1, 1, 1, 0, 1, 2, 2, 2, 0, 2, 0, 1, 1, 0, 1, 0, 0,~
-## $ FireplaceQu   &lt;fct&gt; NA, TA, TA, Gd, TA, NA, Gd, TA, TA, TA, NA, Gd, NA, Gd, ~
+## $ FireplaceQu   &lt;fct&gt; No, TA, TA, Gd, TA, No, Gd, TA, TA, TA, No, Gd, No, Gd, ~
 ## $ GarageType    &lt;fct&gt; Attchd, Attchd, Attchd, Detchd, Attchd, Attchd, Attchd, ~
 ## $ GarageYrBlt   &lt;dbl&gt; 2003, 1976, 2001, 1998, 2000, 1993, 2004, 1973, 1931, 19~
 ## $ GarageFinish  &lt;fct&gt; RFn, RFn, RFn, Unf, RFn, Unf, RFn, RFn, Unf, RFn, Unf, F~
@@ -1588,15 +1565,1207 @@ glimpse(dat)</code></pre>
 ## $ `3SsnPorch`   &lt;dbl&gt; 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
 ## $ ScreenPorch   &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 176, 0, 0, 0, 0, 0, ~
 ## $ PoolArea      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ PoolQC        &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ~
-## $ Fence         &lt;fct&gt; NA, NA, NA, NA, NA, MnPrv, NA, NA, NA, NA, NA, NA, NA, N~
-## $ MiscFeature   &lt;fct&gt; NA, NA, NA, NA, NA, Shed, NA, Shed, NA, NA, NA, NA, NA, ~
+## $ PoolQC        &lt;fct&gt; No, No, No, No, No, No, No, No, No, No, No, No, No, No, ~
+## $ Fence         &lt;fct&gt; No, No, No, No, No, MnPrv, No, No, No, No, No, No, No, N~
+## $ MiscFeature   &lt;fct&gt; None, None, None, None, None, Shed, None, Shed, None, No~
 ## $ MiscVal       &lt;dbl&gt; 0, 0, 0, 0, 0, 700, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 700,~
 ## $ MoSold        &lt;dbl&gt; 2, 5, 9, 2, 12, 10, 8, 11, 4, 1, 2, 7, 9, 8, 5, 7, 3, 10~
 ## $ YrSold        &lt;dbl&gt; 2008, 2007, 2008, 2006, 2008, 2009, 2007, 2009, 2008, 20~
 ## $ SaleType      &lt;fct&gt; WD, WD, WD, WD, WD, WD, WD, WD, WD, WD, WD, New, WD, New~
 ## $ SaleCondition &lt;fct&gt; Normal, Normal, Normal, Abnorml, Normal, Normal, Normal,~
 ## $ SalePrice     &lt;dbl&gt; 208500, 181500, 223500, 140000, 250000, 143000, 307000, ~</code></pre>
+<pre class="r"><code>skim(dat)</code></pre>
+<table>
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">dat</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">1460</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">81</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">factor</td>
+<td align="left">40</td>
+</tr>
+<tr class="odd">
+<td align="left">numeric</td>
+<td align="left">41</td>
+</tr>
+<tr class="even">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="left">ordered</th>
+<th align="right">n_unique</th>
+<th align="left">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Id</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">1460</td>
+<td align="left">1: 1, 2: 1, 3: 1, 4: 1</td>
+</tr>
+<tr class="even">
+<td align="left">MSSubClass</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">15</td>
+<td align="left">20: 536, 60: 299, 50: 144, 120: 87</td>
+</tr>
+<tr class="odd">
+<td align="left">MSZoning</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">RL: 1151, RM: 218, FV: 65, RH: 16</td>
+</tr>
+<tr class="even">
+<td align="left">Street</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">2</td>
+<td align="left">Pav: 1454, Grv: 6</td>
+</tr>
+<tr class="odd">
+<td align="left">Alley</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">No: 1369, Grv: 50, Pav: 41</td>
+</tr>
+<tr class="even">
+<td align="left">LotShape</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">Reg: 925, IR1: 484, IR2: 41, IR3: 10</td>
+</tr>
+<tr class="odd">
+<td align="left">LandContour</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">Lvl: 1311, Bnk: 63, HLS: 50, Low: 36</td>
+</tr>
+<tr class="even">
+<td align="left">Utilities</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">2</td>
+<td align="left">All: 1459, NoS: 1</td>
+</tr>
+<tr class="odd">
+<td align="left">LotConfig</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">Ins: 1052, Cor: 263, Cul: 94, FR2: 47</td>
+</tr>
+<tr class="even">
+<td align="left">LandSlope</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">Gtl: 1382, Mod: 65, Sev: 13</td>
+</tr>
+<tr class="odd">
+<td align="left">Neighborhood</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">25</td>
+<td align="left">NAm: 225, Col: 150, Old: 113, Edw: 100</td>
+</tr>
+<tr class="even">
+<td align="left">Condition1</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">9</td>
+<td align="left">Nor: 1260, Fee: 81, Art: 48, RRA: 26</td>
+</tr>
+<tr class="odd">
+<td align="left">Condition2</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">8</td>
+<td align="left">Nor: 1445, Fee: 6, Art: 2, Pos: 2</td>
+</tr>
+<tr class="even">
+<td align="left">BldgType</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">1Fa: 1220, Twn: 114, Dup: 52, Twn: 43</td>
+</tr>
+<tr class="odd">
+<td align="left">HouseStyle</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">8</td>
+<td align="left">1St: 726, 2St: 445, 1.5: 154, SLv: 65</td>
+</tr>
+<tr class="even">
+<td align="left">RoofStyle</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">Gab: 1141, Hip: 286, Fla: 13, Gam: 11</td>
+</tr>
+<tr class="odd">
+<td align="left">RoofMatl</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">8</td>
+<td align="left">Com: 1434, Tar: 11, WdS: 6, WdS: 5</td>
+</tr>
+<tr class="even">
+<td align="left">Exterior1st</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">15</td>
+<td align="left">Vin: 515, HdB: 222, Met: 220, Wd : 206</td>
+</tr>
+<tr class="odd">
+<td align="left">Exterior2nd</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">16</td>
+<td align="left">Vin: 504, Met: 214, HdB: 207, Wd : 197</td>
+</tr>
+<tr class="even">
+<td align="left">MasVnrType</td>
+<td align="right">8</td>
+<td align="right">0.99</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">Non: 864, Brk: 445, Sto: 128, Brk: 15</td>
+</tr>
+<tr class="odd">
+<td align="left">Foundation</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">PCo: 647, CBl: 634, Brk: 146, Sla: 24</td>
+</tr>
+<tr class="even">
+<td align="left">BsmtQual</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">TA: 649, Gd: 618, Ex: 121, NoB: 37</td>
+</tr>
+<tr class="odd">
+<td align="left">BsmtCond</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">TA: 1311, Gd: 65, Fa: 45, NoB: 37</td>
+</tr>
+<tr class="even">
+<td align="left">BsmtExposure</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">No: 953, Av: 221, Gd: 134, Mn: 114</td>
+</tr>
+<tr class="odd">
+<td align="left">BsmtFinType1</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">7</td>
+<td align="left">Unf: 430, GLQ: 418, ALQ: 220, BLQ: 148</td>
+</tr>
+<tr class="even">
+<td align="left">BsmtFinType2</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">7</td>
+<td align="left">Unf: 1256, Rec: 54, LwQ: 46, NoB: 38</td>
+</tr>
+<tr class="odd">
+<td align="left">Heating</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">Gas: 1428, Gas: 18, Gra: 7, Wal: 4</td>
+</tr>
+<tr class="even">
+<td align="left">CentralAir</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">2</td>
+<td align="left">Y: 1365, N: 95</td>
+</tr>
+<tr class="odd">
+<td align="left">Electrical</td>
+<td align="right">1</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">SBr: 1334, Fus: 94, Fus: 27, Fus: 3</td>
+</tr>
+<tr class="even">
+<td align="left">FireplaceQu</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">No: 690, Gd: 380, TA: 313, Fa: 33</td>
+</tr>
+<tr class="odd">
+<td align="left">GarageType</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">7</td>
+<td align="left">Att: 870, Det: 387, Bui: 88, No: 81</td>
+</tr>
+<tr class="even">
+<td align="left">GarageFinish</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">Unf: 605, RFn: 422, Fin: 352, No: 81</td>
+</tr>
+<tr class="odd">
+<td align="left">GarageQual</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">TA: 1311, No: 81, Fa: 48, Gd: 14</td>
+</tr>
+<tr class="even">
+<td align="left">GarageCond</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">TA: 1326, No: 81, Fa: 35, Gd: 9</td>
+</tr>
+<tr class="odd">
+<td align="left">PavedDrive</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">3</td>
+<td align="left">Y: 1340, N: 90, P: 30</td>
+</tr>
+<tr class="even">
+<td align="left">PoolQC</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">4</td>
+<td align="left">No: 1453, Gd: 3, Ex: 2, Fa: 2</td>
+</tr>
+<tr class="odd">
+<td align="left">Fence</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">No: 1179, MnP: 157, GdP: 59, GdW: 54</td>
+</tr>
+<tr class="even">
+<td align="left">MiscFeature</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">5</td>
+<td align="left">Non: 1406, She: 49, Gar: 2, Oth: 2</td>
+</tr>
+<tr class="odd">
+<td align="left">SaleType</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">9</td>
+<td align="left">WD: 1267, New: 122, COD: 43, Con: 9</td>
+</tr>
+<tr class="even">
+<td align="left">SaleCondition</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="left">FALSE</td>
+<td align="right">6</td>
+<td align="left">Nor: 1198, Par: 125, Abn: 101, Fam: 20</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<colgroup>
+<col width="10%"></col>
+<col width="7%"></col>
+<col width="10%"></col>
+<col width="7%"></col>
+<col width="6%"></col>
+<col width="4%"></col>
+<col width="7%"></col>
+<col width="6%"></col>
+<col width="7%"></col>
+<col width="5%"></col>
+<col width="29%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">LotFrontage</td>
+<td align="right">259</td>
+<td align="right">0.82</td>
+<td align="right">70.05</td>
+<td align="right">24.28</td>
+<td align="right">21</td>
+<td align="right">59.00</td>
+<td align="right">69.0</td>
+<td align="right">80.00</td>
+<td align="right">313</td>
+<td align="left">▇▃▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">LotArea</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">10516.83</td>
+<td align="right">9981.26</td>
+<td align="right">1300</td>
+<td align="right">7553.50</td>
+<td align="right">9478.5</td>
+<td align="right">11601.50</td>
+<td align="right">215245</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">OverallQual</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">6.10</td>
+<td align="right">1.38</td>
+<td align="right">1</td>
+<td align="right">5.00</td>
+<td align="right">6.0</td>
+<td align="right">7.00</td>
+<td align="right">10</td>
+<td align="left">▁▂▇▅▁</td>
+</tr>
+<tr class="even">
+<td align="left">OverallCond</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">5.58</td>
+<td align="right">1.11</td>
+<td align="right">1</td>
+<td align="right">5.00</td>
+<td align="right">5.0</td>
+<td align="right">6.00</td>
+<td align="right">9</td>
+<td align="left">▁▁▇▅▁</td>
+</tr>
+<tr class="odd">
+<td align="left">YearBuilt</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1971.27</td>
+<td align="right">30.20</td>
+<td align="right">1872</td>
+<td align="right">1954.00</td>
+<td align="right">1973.0</td>
+<td align="right">2000.00</td>
+<td align="right">2010</td>
+<td align="left">▁▂▃▆▇</td>
+</tr>
+<tr class="even">
+<td align="left">YearRemodAdd</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1984.87</td>
+<td align="right">20.65</td>
+<td align="right">1950</td>
+<td align="right">1967.00</td>
+<td align="right">1994.0</td>
+<td align="right">2004.00</td>
+<td align="right">2010</td>
+<td align="left">▅▂▂▃▇</td>
+</tr>
+<tr class="odd">
+<td align="left">MasVnrArea</td>
+<td align="right">8</td>
+<td align="right">0.99</td>
+<td align="right">103.69</td>
+<td align="right">181.07</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">166.00</td>
+<td align="right">1600</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">ExterQual</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3.40</td>
+<td align="right">0.57</td>
+<td align="right">2</td>
+<td align="right">3.00</td>
+<td align="right">3.0</td>
+<td align="right">4.00</td>
+<td align="right">5</td>
+<td align="left">▁▇▁▅▁</td>
+</tr>
+<tr class="odd">
+<td align="left">ExterCond</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3.08</td>
+<td align="right">0.35</td>
+<td align="right">1</td>
+<td align="right">3.00</td>
+<td align="right">3.0</td>
+<td align="right">3.00</td>
+<td align="right">5</td>
+<td align="left">▁▁▇▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">BsmtFinSF1</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">443.64</td>
+<td align="right">456.10</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">383.5</td>
+<td align="right">712.25</td>
+<td align="right">5644</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">BsmtFinSF2</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">46.55</td>
+<td align="right">161.32</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">1474</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">BsmtUnfSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">567.24</td>
+<td align="right">441.87</td>
+<td align="right">0</td>
+<td align="right">223.00</td>
+<td align="right">477.5</td>
+<td align="right">808.00</td>
+<td align="right">2336</td>
+<td align="left">▇▅▂▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">TotalBsmtSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1057.43</td>
+<td align="right">438.71</td>
+<td align="right">0</td>
+<td align="right">795.75</td>
+<td align="right">991.5</td>
+<td align="right">1298.25</td>
+<td align="right">6110</td>
+<td align="left">▇▃▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">HeatingQC</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">4.15</td>
+<td align="right">0.96</td>
+<td align="right">1</td>
+<td align="right">3.00</td>
+<td align="right">5.0</td>
+<td align="right">5.00</td>
+<td align="right">5</td>
+<td align="left">▁▁▅▂▇</td>
+</tr>
+<tr class="odd">
+<td align="left">1stFlrSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1162.63</td>
+<td align="right">386.59</td>
+<td align="right">334</td>
+<td align="right">882.00</td>
+<td align="right">1087.0</td>
+<td align="right">1391.25</td>
+<td align="right">4692</td>
+<td align="left">▇▅▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">2ndFlrSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">346.99</td>
+<td align="right">436.53</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">728.00</td>
+<td align="right">2065</td>
+<td align="left">▇▃▂▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">LowQualFinSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">5.84</td>
+<td align="right">48.62</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">572</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">GrLivArea</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1515.46</td>
+<td align="right">525.48</td>
+<td align="right">334</td>
+<td align="right">1129.50</td>
+<td align="right">1464.0</td>
+<td align="right">1776.75</td>
+<td align="right">5642</td>
+<td align="left">▇▇▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">BsmtFullBath</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">0.43</td>
+<td align="right">0.52</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="left">▇▆▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">BsmtHalfBath</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">0.06</td>
+<td align="right">0.24</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">2</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">FullBath</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.57</td>
+<td align="right">0.55</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">2.0</td>
+<td align="right">2.00</td>
+<td align="right">3</td>
+<td align="left">▁▇▁▇▁</td>
+</tr>
+<tr class="even">
+<td align="left">HalfBath</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">0.38</td>
+<td align="right">0.50</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">1.00</td>
+<td align="right">2</td>
+<td align="left">▇▁▅▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">BedroomAbvGr</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">2.87</td>
+<td align="right">0.82</td>
+<td align="right">0</td>
+<td align="right">2.00</td>
+<td align="right">3.0</td>
+<td align="right">3.00</td>
+<td align="right">8</td>
+<td align="left">▁▇▂▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">KitchenAbvGr</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.05</td>
+<td align="right">0.22</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="left">▁▇▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">KitchenQual</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3.51</td>
+<td align="right">0.66</td>
+<td align="right">2</td>
+<td align="right">3.00</td>
+<td align="right">3.0</td>
+<td align="right">4.00</td>
+<td align="right">5</td>
+<td align="left">▁▇▁▆▁</td>
+</tr>
+<tr class="even">
+<td align="left">TotRmsAbvGrd</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">6.52</td>
+<td align="right">1.63</td>
+<td align="right">2</td>
+<td align="right">5.00</td>
+<td align="right">6.0</td>
+<td align="right">7.00</td>
+<td align="right">14</td>
+<td align="left">▂▇▇▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">Functional</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">7.84</td>
+<td align="right">0.67</td>
+<td align="right">2</td>
+<td align="right">8.00</td>
+<td align="right">8.0</td>
+<td align="right">8.00</td>
+<td align="right">8</td>
+<td align="left">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td align="left">Fireplaces</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">0.61</td>
+<td align="right">0.64</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">1.0</td>
+<td align="right">1.00</td>
+<td align="right">3</td>
+<td align="left">▇▇▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">GarageYrBlt</td>
+<td align="right">81</td>
+<td align="right">0.94</td>
+<td align="right">1978.51</td>
+<td align="right">24.69</td>
+<td align="right">1900</td>
+<td align="right">1961.00</td>
+<td align="right">1980.0</td>
+<td align="right">2002.00</td>
+<td align="right">2010</td>
+<td align="left">▁▁▅▅▇</td>
+</tr>
+<tr class="even">
+<td align="left">GarageCars</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">1.77</td>
+<td align="right">0.75</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">2.0</td>
+<td align="right">2.00</td>
+<td align="right">4</td>
+<td align="left">▁▃▇▂▁</td>
+</tr>
+<tr class="odd">
+<td align="left">GarageArea</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">472.98</td>
+<td align="right">213.80</td>
+<td align="right">0</td>
+<td align="right">334.50</td>
+<td align="right">480.0</td>
+<td align="right">576.00</td>
+<td align="right">1418</td>
+<td align="left">▂▇▃▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">WoodDeckSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">94.24</td>
+<td align="right">125.34</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">168.00</td>
+<td align="right">857</td>
+<td align="left">▇▂▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">OpenPorchSF</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">46.66</td>
+<td align="right">66.26</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">25.0</td>
+<td align="right">68.00</td>
+<td align="right">547</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">EnclosedPorch</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">21.95</td>
+<td align="right">61.12</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">552</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">3SsnPorch</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">3.41</td>
+<td align="right">29.32</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">508</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">ScreenPorch</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">15.06</td>
+<td align="right">55.76</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">480</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">PoolArea</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">2.76</td>
+<td align="right">40.18</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">738</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td align="left">MiscVal</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">43.49</td>
+<td align="right">496.12</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.0</td>
+<td align="right">0.00</td>
+<td align="right">15500</td>
+<td align="left">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td align="left">MoSold</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">6.32</td>
+<td align="right">2.70</td>
+<td align="right">1</td>
+<td align="right">5.00</td>
+<td align="right">6.0</td>
+<td align="right">8.00</td>
+<td align="right">12</td>
+<td align="left">▃▆▇▃▃</td>
+</tr>
+<tr class="even">
+<td align="left">YrSold</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">2007.82</td>
+<td align="right">1.33</td>
+<td align="right">2006</td>
+<td align="right">2007.00</td>
+<td align="right">2008.0</td>
+<td align="right">2009.00</td>
+<td align="right">2010</td>
+<td align="left">▇▇▇▇▅</td>
+</tr>
+<tr class="odd">
+<td align="left">SalePrice</td>
+<td align="right">0</td>
+<td align="right">1.00</td>
+<td align="right">180921.20</td>
+<td align="right">79442.50</td>
+<td align="right">34900</td>
+<td align="right">129975.00</td>
+<td align="right">163000.0</td>
+<td align="right">214000.00</td>
+<td align="right">755000</td>
+<td align="left">▇▅▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="missing-data" class="section level2">
+<h2>Missing data?</h2>
+<pre class="r"><code>dat %&gt;% filter(is.na(MasVnrType) | MasVnrType == &quot;None&quot;) %&gt;% head() # True missing data</code></pre>
+<pre><code>## # A tibble: 6 x 81
+##   Id    MSSubClass MSZoning LotFrontage LotArea Street Alley LotShape
+##   &lt;fct&gt; &lt;fct&gt;      &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt; &lt;fct&gt;   
+## 1 2     20         RL                80    9600 Pave   No    Reg     
+## 2 4     70         RL                60    9550 Pave   No    IR1     
+## 3 6     50         RL                85   14115 Pave   No    IR1     
+## 4 9     50         RM                51    6120 Pave   No    Reg     
+## 5 10    190        RL                50    7420 Pave   No    Reg     
+## 6 11    20         RL                70   11200 Pave   No    Reg     
+## # ... with 73 more variables: LandContour &lt;fct&gt;, Utilities &lt;fct&gt;,
+## #   LotConfig &lt;fct&gt;, LandSlope &lt;fct&gt;, Neighborhood &lt;fct&gt;, Condition1 &lt;fct&gt;,
+## #   Condition2 &lt;fct&gt;, BldgType &lt;fct&gt;, HouseStyle &lt;fct&gt;, OverallQual &lt;dbl&gt;,
+## #   OverallCond &lt;dbl&gt;, YearBuilt &lt;dbl&gt;, YearRemodAdd &lt;dbl&gt;, RoofStyle &lt;fct&gt;,
+## #   RoofMatl &lt;fct&gt;, Exterior1st &lt;fct&gt;, Exterior2nd &lt;fct&gt;, MasVnrType &lt;fct&gt;,
+## #   MasVnrArea &lt;dbl&gt;, ExterQual &lt;dbl&gt;, ExterCond &lt;dbl&gt;, Foundation &lt;fct&gt;,
+## #   BsmtQual &lt;fct&gt;, BsmtCond &lt;fct&gt;, BsmtExposure &lt;fct&gt;, BsmtFinType1 &lt;fct&gt;,
+## #   BsmtFinSF1 &lt;dbl&gt;, BsmtFinType2 &lt;fct&gt;, BsmtFinSF2 &lt;dbl&gt;, BsmtUnfSF &lt;dbl&gt;,
+## #   TotalBsmtSF &lt;dbl&gt;, Heating &lt;fct&gt;, HeatingQC &lt;dbl&gt;, CentralAir &lt;fct&gt;,
+## #   Electrical &lt;fct&gt;, 1stFlrSF &lt;dbl&gt;, 2ndFlrSF &lt;dbl&gt;, LowQualFinSF &lt;dbl&gt;,
+## #   GrLivArea &lt;dbl&gt;, BsmtFullBath &lt;dbl&gt;, BsmtHalfBath &lt;dbl&gt;, FullBath &lt;dbl&gt;,
+## #   HalfBath &lt;dbl&gt;, BedroomAbvGr &lt;dbl&gt;, KitchenAbvGr &lt;dbl&gt;, KitchenQual &lt;dbl&gt;,
+## #   TotRmsAbvGrd &lt;dbl&gt;, Functional &lt;dbl&gt;, Fireplaces &lt;dbl&gt;, FireplaceQu &lt;fct&gt;,
+## #   GarageType &lt;fct&gt;, GarageYrBlt &lt;dbl&gt;, GarageFinish &lt;fct&gt;, GarageCars &lt;dbl&gt;,
+## #   GarageArea &lt;dbl&gt;, GarageQual &lt;fct&gt;, GarageCond &lt;fct&gt;, PavedDrive &lt;fct&gt;,
+## #   WoodDeckSF &lt;dbl&gt;, OpenPorchSF &lt;dbl&gt;, EnclosedPorch &lt;dbl&gt;, 3SsnPorch &lt;dbl&gt;,
+## #   ScreenPorch &lt;dbl&gt;, PoolArea &lt;dbl&gt;, PoolQC &lt;fct&gt;, Fence &lt;fct&gt;,
+## #   MiscFeature &lt;fct&gt;, MiscVal &lt;dbl&gt;, MoSold &lt;dbl&gt;, YrSold &lt;dbl&gt;,
+## #   SaleType &lt;fct&gt;, SaleCondition &lt;fct&gt;, SalePrice &lt;dbl&gt;</code></pre>
+<pre class="r"><code>dat %&gt;% select(LotFrontage) %&gt;% head() # True missing data</code></pre>
+<pre><code>## # A tibble: 6 x 1
+##   LotFrontage
+##         &lt;dbl&gt;
+## 1          65
+## 2          80
+## 3          68
+## 4          60
+## 5          84
+## 6          85</code></pre>
+<pre class="r"><code>dat %&gt;% select(MasVnrType, MasVnrArea) %&gt;%
+    filter(is.na(MasVnrType)) # True missing data</code></pre>
+<pre><code>## # A tibble: 8 x 2
+##   MasVnrType MasVnrArea
+##   &lt;fct&gt;           &lt;dbl&gt;
+## 1 &lt;NA&gt;               NA
+## 2 &lt;NA&gt;               NA
+## 3 &lt;NA&gt;               NA
+## 4 &lt;NA&gt;               NA
+## 5 &lt;NA&gt;               NA
+## 6 &lt;NA&gt;               NA
+## 7 &lt;NA&gt;               NA
+## 8 &lt;NA&gt;               NA</code></pre>
+</div>
+<div id="imputation---random-forest" class="section level2">
+<h2>Imputation - Random Forest</h2>
+<pre class="r"><code>dat &lt;- dat %&gt;% select(-Id)
+glimpse(dat)</code></pre>
+<pre><code>## Rows: 1,460
+## Columns: 80
+## $ MSSubClass    &lt;fct&gt; 60, 20, 60, 70, 60, 50, 20, 60, 50, 190, 20, 60, 20, 20,~
+## $ MSZoning      &lt;fct&gt; RL, RL, RL, RL, RL, RL, RL, RL, RM, RL, RL, RL, RL, RL, ~
+## $ LotFrontage   &lt;dbl&gt; 65, 80, 68, 60, 84, 85, 75, NA, 51, 50, 70, 85, NA, 91, ~
+## $ LotArea       &lt;dbl&gt; 8450, 9600, 11250, 9550, 14260, 14115, 10084, 10382, 612~
+## $ Street        &lt;fct&gt; Pave, Pave, Pave, Pave, Pave, Pave, Pave, Pave, Pave, Pa~
+## $ Alley         &lt;fct&gt; No, No, No, No, No, No, No, No, No, No, No, No, No, No, ~
+## $ LotShape      &lt;fct&gt; Reg, Reg, IR1, IR1, IR1, IR1, Reg, IR1, Reg, Reg, Reg, I~
+## $ LandContour   &lt;fct&gt; Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, Lvl, L~
+## $ Utilities     &lt;fct&gt; AllPub, AllPub, AllPub, AllPub, AllPub, AllPub, AllPub, ~
+## $ LotConfig     &lt;fct&gt; Inside, FR2, Inside, Corner, FR2, Inside, Inside, Corner~
+## $ LandSlope     &lt;fct&gt; Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, Gtl, G~
+## $ Neighborhood  &lt;fct&gt; CollgCr, Veenker, CollgCr, Crawfor, NoRidge, Mitchel, So~
+## $ Condition1    &lt;fct&gt; Norm, Feedr, Norm, Norm, Norm, Norm, Norm, PosN, Artery,~
+## $ Condition2    &lt;fct&gt; Norm, Norm, Norm, Norm, Norm, Norm, Norm, Norm, Norm, Ar~
+## $ BldgType      &lt;fct&gt; 1Fam, 1Fam, 1Fam, 1Fam, 1Fam, 1Fam, 1Fam, 1Fam, 1Fam, 2f~
+## $ HouseStyle    &lt;fct&gt; 2Story, 1Story, 2Story, 2Story, 2Story, 1.5Fin, 1Story, ~
+## $ OverallQual   &lt;dbl&gt; 7, 6, 7, 7, 8, 5, 8, 7, 7, 5, 5, 9, 5, 7, 6, 7, 6, 4, 5,~
+## $ OverallCond   &lt;dbl&gt; 5, 8, 5, 5, 5, 5, 5, 6, 5, 6, 5, 5, 6, 5, 5, 8, 7, 5, 5,~
+## $ YearBuilt     &lt;dbl&gt; 2003, 1976, 2001, 1915, 2000, 1993, 2004, 1973, 1931, 19~
+## $ YearRemodAdd  &lt;dbl&gt; 2003, 1976, 2002, 1970, 2000, 1995, 2005, 1973, 1950, 19~
+## $ RoofStyle     &lt;fct&gt; Gable, Gable, Gable, Gable, Gable, Gable, Gable, Gable, ~
+## $ RoofMatl      &lt;fct&gt; CompShg, CompShg, CompShg, CompShg, CompShg, CompShg, Co~
+## $ Exterior1st   &lt;fct&gt; VinylSd, MetalSd, VinylSd, Wd Sdng, VinylSd, VinylSd, Vi~
+## $ Exterior2nd   &lt;fct&gt; VinylSd, MetalSd, VinylSd, Wd Shng, VinylSd, VinylSd, Vi~
+## $ MasVnrType    &lt;fct&gt; BrkFace, None, BrkFace, None, BrkFace, None, Stone, Ston~
+## $ MasVnrArea    &lt;dbl&gt; 196, 0, 162, 0, 350, 0, 186, 240, 0, 0, 0, 286, 0, 306, ~
+## $ ExterQual     &lt;dbl&gt; 4, 3, 4, 3, 4, 3, 4, 3, 3, 3, 3, 5, 3, 4, 3, 3, 3, 3, 3,~
+## $ ExterCond     &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,~
+## $ Foundation    &lt;fct&gt; PConc, CBlock, PConc, BrkTil, PConc, Wood, PConc, CBlock~
+## $ BsmtQual      &lt;fct&gt; Gd, Gd, Gd, TA, Gd, Gd, Ex, Gd, TA, TA, TA, Ex, TA, Gd, ~
+## $ BsmtCond      &lt;fct&gt; TA, TA, TA, Gd, TA, TA, TA, TA, TA, TA, TA, TA, TA, TA, ~
+## $ BsmtExposure  &lt;fct&gt; No, Gd, Mn, No, Av, No, Av, Mn, No, No, No, No, No, Av, ~
+## $ BsmtFinType1  &lt;fct&gt; GLQ, ALQ, GLQ, ALQ, GLQ, GLQ, GLQ, ALQ, Unf, GLQ, Rec, G~
+## $ BsmtFinSF1    &lt;dbl&gt; 706, 978, 486, 216, 655, 732, 1369, 859, 0, 851, 906, 99~
+## $ BsmtFinType2  &lt;fct&gt; Unf, Unf, Unf, Unf, Unf, Unf, Unf, BLQ, Unf, Unf, Unf, U~
+## $ BsmtFinSF2    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ BsmtUnfSF     &lt;dbl&gt; 150, 284, 434, 540, 490, 64, 317, 216, 952, 140, 134, 17~
+## $ TotalBsmtSF   &lt;dbl&gt; 856, 1262, 920, 756, 1145, 796, 1686, 1107, 952, 991, 10~
+## $ Heating       &lt;fct&gt; GasA, GasA, GasA, GasA, GasA, GasA, GasA, GasA, GasA, Ga~
+## $ HeatingQC     &lt;dbl&gt; 5, 5, 5, 4, 5, 5, 5, 5, 4, 5, 5, 5, 3, 5, 3, 5, 5, 3, 5,~
+## $ CentralAir    &lt;fct&gt; Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y,~
+## $ Electrical    &lt;fct&gt; SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, SBrkr, ~
+## $ `1stFlrSF`    &lt;dbl&gt; 856, 1262, 920, 961, 1145, 796, 1694, 1107, 1022, 1077, ~
+## $ `2ndFlrSF`    &lt;dbl&gt; 854, 0, 866, 756, 1053, 566, 0, 983, 752, 0, 0, 1142, 0,~
+## $ LowQualFinSF  &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
+## $ GrLivArea     &lt;dbl&gt; 1710, 1262, 1786, 1717, 2198, 1362, 1694, 2090, 1774, 10~
+## $ BsmtFullBath  &lt;dbl&gt; 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1,~
+## $ BsmtHalfBath  &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
+## $ FullBath      &lt;dbl&gt; 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 1, 3, 1, 2, 1, 1, 1, 2, 1,~
+## $ HalfBath      &lt;dbl&gt; 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,~
+## $ BedroomAbvGr  &lt;dbl&gt; 3, 3, 3, 3, 4, 1, 3, 3, 2, 2, 3, 4, 2, 3, 2, 2, 2, 2, 3,~
+## $ KitchenAbvGr  &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,~
+## $ KitchenQual   &lt;dbl&gt; 4, 3, 4, 4, 4, 3, 4, 3, 3, 3, 3, 5, 3, 4, 3, 3, 3, 3, 4,~
+## $ TotRmsAbvGrd  &lt;dbl&gt; 8, 6, 6, 7, 9, 5, 7, 7, 8, 5, 5, 11, 4, 7, 5, 5, 5, 6, 6~
+## $ Functional    &lt;dbl&gt; 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,~
+## $ Fireplaces    &lt;dbl&gt; 0, 1, 1, 1, 1, 0, 1, 2, 2, 2, 0, 2, 0, 1, 1, 0, 1, 0, 0,~
+## $ FireplaceQu   &lt;fct&gt; No, TA, TA, Gd, TA, No, Gd, TA, TA, TA, No, Gd, No, Gd, ~
+## $ GarageType    &lt;fct&gt; Attchd, Attchd, Attchd, Detchd, Attchd, Attchd, Attchd, ~
+## $ GarageYrBlt   &lt;dbl&gt; 2003, 1976, 2001, 1998, 2000, 1993, 2004, 1973, 1931, 19~
+## $ GarageFinish  &lt;fct&gt; RFn, RFn, RFn, Unf, RFn, Unf, RFn, RFn, Unf, RFn, Unf, F~
+## $ GarageCars    &lt;dbl&gt; 2, 2, 2, 3, 3, 2, 2, 2, 2, 1, 1, 3, 1, 3, 1, 2, 2, 2, 2,~
+## $ GarageArea    &lt;dbl&gt; 548, 460, 608, 642, 836, 480, 636, 484, 468, 205, 384, 7~
+## $ GarageQual    &lt;fct&gt; TA, TA, TA, TA, TA, TA, TA, TA, Fa, Gd, TA, TA, TA, TA, ~
+## $ GarageCond    &lt;fct&gt; TA, TA, TA, TA, TA, TA, TA, TA, TA, TA, TA, TA, TA, TA, ~
+## $ PavedDrive    &lt;fct&gt; Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y, Y,~
+## $ WoodDeckSF    &lt;dbl&gt; 0, 298, 0, 0, 192, 40, 255, 235, 90, 0, 0, 147, 140, 160~
+## $ OpenPorchSF   &lt;dbl&gt; 61, 0, 42, 35, 84, 30, 57, 204, 0, 4, 0, 21, 0, 33, 213,~
+## $ EnclosedPorch &lt;dbl&gt; 0, 0, 0, 272, 0, 0, 0, 228, 205, 0, 0, 0, 0, 0, 176, 0, ~
+## $ `3SsnPorch`   &lt;dbl&gt; 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ ScreenPorch   &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 176, 0, 0, 0, 0, 0, ~
+## $ PoolArea      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
+## $ PoolQC        &lt;fct&gt; No, No, No, No, No, No, No, No, No, No, No, No, No, No, ~
+## $ Fence         &lt;fct&gt; No, No, No, No, No, MnPrv, No, No, No, No, No, No, No, N~
+## $ MiscFeature   &lt;fct&gt; None, None, None, None, None, Shed, None, Shed, None, No~
+## $ MiscVal       &lt;dbl&gt; 0, 0, 0, 0, 0, 700, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 700,~
+## $ MoSold        &lt;dbl&gt; 2, 5, 9, 2, 12, 10, 8, 11, 4, 1, 2, 7, 9, 8, 5, 7, 3, 10~
+## $ YrSold        &lt;dbl&gt; 2008, 2007, 2008, 2006, 2008, 2009, 2007, 2009, 2008, 20~
+## $ SaleType      &lt;fct&gt; WD, WD, WD, WD, WD, WD, WD, WD, WD, WD, WD, New, WD, New~
+## $ SaleCondition &lt;fct&gt; Normal, Normal, Normal, Abnorml, Normal, Normal, Normal,~
+## $ SalePrice     &lt;dbl&gt; 208500, 181500, 223500, 140000, 250000, 143000, 307000, ~</code></pre>
+<pre class="r"><code>set.seed(100)
+house &lt;- rfImpute(SalePrice ~ ., dat)
+
+save(house, file =&quot;imputed.rda&quot;)</code></pre>
+</div>
+<div id="random-forest" class="section level2">
+<h2>Random forest</h2>
+<pre class="r"><code>load(&quot;imputed.rda&quot;)
+
+head(house)</code></pre>
+<pre><code>##   SalePrice MSSubClass MSZoning LotFrontage LotArea Street Alley LotShape
+## 1    208500         60       RL          65    8450   Pave    No      Reg
+## 2    181500         20       RL          80    9600   Pave    No      Reg
+## 3    223500         60       RL          68   11250   Pave    No      IR1
+## 4    140000         70       RL          60    9550   Pave    No      IR1
+## 5    250000         60       RL          84   14260   Pave    No      IR1
+## 6    143000         50       RL          85   14115   Pave    No      IR1
+##   LandContour Utilities LotConfig LandSlope Neighborhood Condition1 Condition2
+## 1         Lvl    AllPub    Inside       Gtl      CollgCr       Norm       Norm
+## 2         Lvl    AllPub       FR2       Gtl      Veenker      Feedr       Norm
+## 3         Lvl    AllPub    Inside       Gtl      CollgCr       Norm       Norm
+## 4         Lvl    AllPub    Corner       Gtl      Crawfor       Norm       Norm
+## 5         Lvl    AllPub       FR2       Gtl      NoRidge       Norm       Norm
+## 6         Lvl    AllPub    Inside       Gtl      Mitchel       Norm       Norm
+##   BldgType HouseStyle OverallQual OverallCond YearBuilt YearRemodAdd RoofStyle
+## 1     1Fam     2Story           7           5      2003         2003     Gable
+## 2     1Fam     1Story           6           8      1976         1976     Gable
+## 3     1Fam     2Story           7           5      2001         2002     Gable
+## 4     1Fam     2Story           7           5      1915         1970     Gable
+## 5     1Fam     2Story           8           5      2000         2000     Gable
+## 6     1Fam     1.5Fin           5           5      1993         1995     Gable
+##   RoofMatl Exterior1st Exterior2nd MasVnrType MasVnrArea ExterQual ExterCond
+## 1  CompShg     VinylSd     VinylSd    BrkFace        196         4         3
+## 2  CompShg     MetalSd     MetalSd       None          0         3         3
+## 3  CompShg     VinylSd     VinylSd    BrkFace        162         4         3
+## 4  CompShg     Wd Sdng     Wd Shng       None          0         3         3
+## 5  CompShg     VinylSd     VinylSd    BrkFace        350         4         3
+## 6  CompShg     VinylSd     VinylSd       None          0         3         3
+##   Foundation BsmtQual BsmtCond BsmtExposure BsmtFinType1 BsmtFinSF1
+## 1      PConc       Gd       TA           No          GLQ        706
+## 2     CBlock       Gd       TA           Gd          ALQ        978
+## 3      PConc       Gd       TA           Mn          GLQ        486
+## 4     BrkTil       TA       Gd           No          ALQ        216
+## 5      PConc       Gd       TA           Av          GLQ        655
+## 6       Wood       Gd       TA           No          GLQ        732
+##   BsmtFinType2 BsmtFinSF2 BsmtUnfSF TotalBsmtSF Heating HeatingQC CentralAir
+## 1          Unf          0       150         856    GasA         5          Y
+## 2          Unf          0       284        1262    GasA         5          Y
+## 3          Unf          0       434         920    GasA         5          Y
+## 4          Unf          0       540         756    GasA         4          Y
+## 5          Unf          0       490        1145    GasA         5          Y
+## 6          Unf          0        64         796    GasA         5          Y
+##   Electrical 1stFlrSF 2ndFlrSF LowQualFinSF GrLivArea BsmtFullBath BsmtHalfBath
+## 1      SBrkr      856      854            0      1710            1            0
+## 2      SBrkr     1262        0            0      1262            0            1
+## 3      SBrkr      920      866            0      1786            1            0
+## 4      SBrkr      961      756            0      1717            1            0
+## 5      SBrkr     1145     1053            0      2198            1            0
+## 6      SBrkr      796      566            0      1362            1            0
+##   FullBath HalfBath BedroomAbvGr KitchenAbvGr KitchenQual TotRmsAbvGrd
+## 1        2        1            3            1           4            8
+## 2        2        0            3            1           3            6
+## 3        2        1            3            1           4            6
+## 4        1        0            3            1           4            7
+## 5        2        1            4            1           4            9
+## 6        1        1            1            1           3            5
+##   Functional Fireplaces FireplaceQu GarageType GarageYrBlt GarageFinish
+## 1          8          0          No     Attchd        2003          RFn
+## 2          8          1          TA     Attchd        1976          RFn
+## 3          8          1          TA     Attchd        2001          RFn
+## 4          8          1          Gd     Detchd        1998          Unf
+## 5          8          1          TA     Attchd        2000          RFn
+## 6          8          0          No     Attchd        1993          Unf
+##   GarageCars GarageArea GarageQual GarageCond PavedDrive WoodDeckSF OpenPorchSF
+## 1          2        548         TA         TA          Y          0          61
+## 2          2        460         TA         TA          Y        298           0
+## 3          2        608         TA         TA          Y          0          42
+## 4          3        642         TA         TA          Y          0          35
+## 5          3        836         TA         TA          Y        192          84
+## 6          2        480         TA         TA          Y         40          30
+##   EnclosedPorch 3SsnPorch ScreenPorch PoolArea PoolQC Fence MiscFeature MiscVal
+## 1             0         0           0        0     No    No        None       0
+## 2             0         0           0        0     No    No        None       0
+## 3             0         0           0        0     No    No        None       0
+## 4           272         0           0        0     No    No        None       0
+## 5             0         0           0        0     No    No        None       0
+## 6             0       320           0        0     No MnPrv        Shed     700
+##   MoSold YrSold SaleType SaleCondition
+## 1      2   2008       WD        Normal
+## 2      5   2007       WD        Normal
+## 3      9   2008       WD        Normal
+## 4      2   2006       WD       Abnorml
+## 5     12   2008       WD        Normal
+## 6     10   2009       WD        Normal</code></pre>
+<pre class="r"><code>dim(house)</code></pre>
+<pre><code>## [1] 1460   80</code></pre>
+<pre class="r"><code>tune_rf &lt;- tuneRF(x = house[,2:80], y = house[,1], ntreeTry = 500)
+tune_rf
+tune_rf[which.min(tune_rf[,2]),1]</code></pre>
+<pre class="r"><code>m &lt;- 26
+
+rf_m &lt;- randomForest(x = house[,2:80], y = house[,1], mtry = m, ntree = 1000,
+                     keep.forest = TRUE)
+plot(rf_m)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAAyVBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrY6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kLY6kNtmAABmOgBmOjpmZjpmZmZmZpBmkJBmkLZmkNtmtttmtv+QOgCQZjqQZmaQkDqQkJCQkLaQkNuQtraQttuQtv+Q2/+2ZgC2Zjq2kDq2kGa2tma2tpC2tra2ttu227a229u22/+2///bkDrbkGbbtmbbtpDbtrbb25Db27bb29vb2//b////tmb/25D/27b/29v//7b//9v///+BoumpAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3dC3fTWLqgYbkqEMKhBqhOHQ6Xmu4pDqEZzECngUMgQOz//6NG8i12nJu2tmx91vOsXiuJe8v2htSLbEnbxRiAJMW2nwBAVAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCSiijN/eKohjc/z/ftv1MQECJ5ft+MXVHQOkAASWQs0ezfhZ3t/1UYCyghHI672fxcNtPBcYCSijHVTsHr8bj0bafCVQElECOvf1JpwgogQgo3SKgdNjx9O3Of98ril+ffCzOXXUM6Wj6En/05qD85v7LyW2ffi+/P3giu+QnoHTYNKCvp9E8vHVA/710stOPx7Pvq7dOIS8BpcMmAT2YBvCX/3vbgB6cj7vzP/uL73/51wafOf0goHTY8VIzH54u/XBdQK/k1CdyE1A6bCmgk1fgNx5EmgX0t6/j0T9nG+69H48/7t+0IaQQUDpsFtDfvi3/fHNAHy59Px197DU8bRBQOuy4WC3m7QI6C+V042eT708FlDYIKB223MDFzzcGdDZgea9zsgiJ4/DkJqB02OLSzeWfbwzo7AjTqYDSNgGlwy6+dVk/oLPBAkorBJQOuxhMAaVbBJQOE1C6TUDpMAGl2wSUDhNQuk1A6TABpdsElA4TULpNQOkwAaXbBJQOE1C6TUDpMAGl2wSUDhNQuk1AARIJKEAiAQVIJKAAiQSUiJY/bW7BQSI2TUCJSEDpBAElIgGlEwSUiASUThBQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkKj1gP78MiydfG37cQA2rd2AfnpcLPz6RESBndJmQH8s5XPit28tPhrAhrUY0O/71X7nwb2iGPznn4f3qoLeUVBgd7QX0NHzMpgfpt8MXpVf3pRBvdvawwFsWnsBPV7scJYF/eVf4+ku6bPWHg9gw1oLaLUDOq/laVE8rL4e2wUFdkhrAT17NN3tnH0/2Rktd0G9CwrsjE0FdPL98m0A0bUZ0OrQ0US55ymgwM5p7yDS0fkbnvPjSadOZAJ2SHsBLWs5PXS0+O7T/vwWgB3Q7nmgxd4/hm9flF/LV+5nj6dfAXZEi1cinZ1fyVm9G3r2qOzph/YeDmDD2rwWfvR61s8H1RufZ48GT7wBCuyQlpez+/zm8I93sgnsJAsqAyQSUIBErQd0dPJ5OBy+O/E6Htg17Qb0y4ul5ZQfvG/1sQA2bKMr0u+9unkjgChaDOhptSJ9cXA4NVmRflBzOdACIJvslWsvoNWJ84OXSzdUV3LWuxJp23/awG7JG7mWV6S/kMsqqbWuhW/hHwygtwIFdHlF+rm6qzEJKJBPoIBetvZn3fVABRTIR0ABEgUK6OzDjFd4CQ9sT6CAVivSX6hl9bZorU/lFFAgn0gBrT4F/s7y+p8/nhfrO6XXElAgn0gBrc5jKot5+New8nZ6Jn29T/QQUCCfUAEdf9y/cBLr4Gm9OxBQIJ9YAR2P3iwntP6C9AIK5BMsoKXRl+Gbw8PDJ8P3CevZCSiQT7yANiKgQD4CCpBIQAEShQxo3Qs4zwkokI+AAiQSUIBEAgqQSEABEgkoQKJgAT37/aBUrSLya/XN/boZFVAgn2gBfbSylkjt/dBbT1dpgRsJaOORQF8FC+jUJt4DFVDgJgLaeCTQVwLaeCTQVwLaeCTQVwLaeCTQVwLaeCTQVyEDOv558jVtQwEF8okZ0GQCCuQjoI1HAn0VNKA/h8N338aj2i/kBRTIJ2RAP96bXsZ59mjvQ70tBRTIJ2JAX8+vgz97VAxeXfdULnHbBxFQ4CYBA3pcZnDv7/tlQEfPi+LOt2ueioACLYoX0O/7RfG03PmszgStCvqszsYCCuQTL6BHRXF3PAvo+HTyw+0JKJBPuICWO53V+56zgJa7o9e9hl8joEA+4QI6u4xzFtC6F3UKKJCPgDYeCfRVuIB6CQ90RbiAVgeRHi4CeuwgErA18QJ6WkzPoa8CWn7vNCZgW+IFtDr3c/CyCujon8X1J9KvE1Agn3gBXf1o42sv5VwnoEA+AQM62QedsZgIsD0RAzoe/3hRrcc0ePC+7oYCCuQTM6DJBBTIR0AbjwT6KmBARyefh8Phu5Nah99nBBTIJ1pAv7xYOgTvPVBgm2IF9MfjC8sj79U7i0lAgYxCBfR0v4rmweHUvcl5oLUuRBJQIKNIAa3OoB+8XLrhUxnUWosxCSiQUaSAHhcXc1kl9WGduxBQIJ9AAb3sA5BOa14ML6BAPoECetniyRZUBrZHQBuPBPoqUEBna9Gv8BIe2J5AAa3Wor9Qy+ptUSvSA1sSKaDf98uCLq9f9+N53QVBBRTIJ1JAq/OYymIe/jWsvJ2eSV/rLCYBBTIKFdDxx/0Ll3IOnta7AwEF8okV0PHozXJCB0/qrsgkoEA+wQJaGn0Zvjk8PHwyfJ+wnp2AAvnEC2gjAgrkI6CNRwJ9JaCNRwJ9JaCNRwJ9FTygroUHtkdAG48E+kpAG48E+ip4QMc/T77WGS6gQD7RA1qTgAL5CGjjkUBfCWjjkUBfCWjjkUBfBQvo6M3vB//xj/NVRByFB7YnVkD/vX9hGTsBBbYnVECPFyuBzj8bSUCB7YkU0OozkfZenpy8rr5OsymgwPZECujxfM/zx+N5QQUU2J5AAa0+w/jZ+beTlgoosD2BArocy/kHwgsosD1BA1r9UH2isYAC2xM1oNURpcErAQW2KFBAl94DrZwWxS8fBBTYnkABrY7C31398Zf/J6DA1kQKaHUe6IOl5T+PJufUCyiwJZECOrkSabmXrwUU2KJQAR1/3F/tZfmzgALbEiug49GnP76t/Px6X0CBLQkW0KYEFMhHQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpKQBuPBPpqpwNaXOL227b5zIBdIKBXbtvmMwN2wU4HdJ2AAvkIaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8JaOORQF8FDOjPL8PSydeUbWtMV0GBG0QL6KfHxcKvT2pHVECBfGIF9MdSPid++1bvDgQUyCdUQL/vV/udB/eKYvCffx7eqwp6p15BBRTIJ1JAR8/LYH6YfjN4VX55Uwb1bq27EFAgn0gBPV7scJYF/eVf4+ku6bM6dyGgQD6BAlrtgM5reVoUD6uvxzV3QQUUyCdQQM8eTXc7Z99PdkbLXdBa74IKKJBP3IBOvl++7TYEFMgnVkCrQ0cT5Z6ngAJbFiig46PzNzznx5NOa57IJKBAPpECWtZyeuho8d2n/fkttySgQD6RAlodhi/2/jF8+6L8Wr5yP3s8/VqDgAL5RArotJhT1buhZ4/Knn6odQ8CCuQTKqDj0etZPx9Ub3yePRo8cS08sDWxAlr6/Obwj3c1s3lOQIF8wgW0GQEF8hHQDEOBfgoY0NHJ5+Fw+O4k5XW8gAL5RAvolxdLyyk/eF93cwEF8okV0LUV6fde3bzRMgEF8gkV0NNqRfri4HBqsiL9oNZyoAIKZBQpoNWJ84OXSzdUV3K6EgnYlkgBPS4u5rJKqmvhgS0JFNDlFennrMYEbE+ggF629qf1QIHtEdAMQ4F+ChTQ2YcZr/ASHtieQAGtVqS/UMvqbVGfyglsSaSAVp8Cf2d5/c8fz4v1ndJrCSiQT6SAVucxlcU8/GtYeTs9k77WWUwCCmQUKqDjj/sXLuUcPK13BwIK5BMroOPRm+WE1l6QXkCBjIIFtDT6MnxzeHj4ZPg+YT07AQXyiRfQRgQUyEdAMwwF+klAMwwF+ilkQOtewHlOQIF8BDTDUKCfBDTDUKCfBDTDUKCfBDTDUKCfBDTDUKCfggX07PeDUrWKyK/VN/frZlRAgXyiBfTRyloitfdDBRTIR0AzDAX6KVhAp7wHCnSBgGYYCvSTgGYYCvSTgGYYCvSTgGYYCvSTgGYYCvRTyICOf558TdtQQIF8YgY0mYAC+QhohqFAPwUN6M/h8N238aj2C3kBBfIJGdCP96aXcZ492vtQb0sBBfKJGNDX8+vgzx4Vg1fXPZVL3PpRBBS4QcCAHpcZ3Pv7fhnQ0fOiuPPtmqcioECL4gX0+35RPC13PqszQauCPquzsYAC+cQL6FFR3B3PAjo+nfxwewIK5BMuoOVOZ/W+5yyg5e7oda/h1wgokE+4gM4u45wFtO5FnQIK5COgGYYC/RQuoF7CA10RLqDVQaSHi4AeO4gEbE28gJ4W03Poq4CW3zuNCdiWeAGtzv0cvKwCOvpncf2J9OsEFMgnXkBXP9r42ks51wkokE/AgE72QWcsJgJsT8SAjsc/XlTrMQ0evK+7oYAC+cQMaDIBBfIR0AxDgX4KG9Cfn4fvax2AnxBQIJ9gAf3y++T8+dGb/ekxpJc1txdQIJ9QAR29KIr5MqAzv9XbCxVQIJ9IAZ10c7YQfTE4PDysdkNrXckpoEBGkQJaXbj5v75Nvz6sbqguRap3Jr2AAvlECujRrJtH5/udRxYTAbYmUEDnn8G5/FmclrMDtidWQNcWUbagMrA9AQM6ei6gQBcECujiM4yPzl/Cn9Zcz05AgXwCBbRafn7+OR6zI0dVUx/WuQsBBfKJFNBqIdDJ+nXH89OYXrd4GpOCAjeIFNDxaXXm/P2/Tk7+WZb0ydsX+0XNHVABBTIKFdDqxfsF9fopoEBGsQK6WEVkviB9i4uJCChwg2ABLf18e/j7Qen+H3+1upydgAI3iBfQRgQUyEdAs4wF+khAs4wF+khAs4wF+ih4QFu8Fl5AgRsIaJaxQB8JaJaxQB8FD+j458nXOsMFFMgnekBrElAgHwHNMhboIwHNMhboIwHNMhboIwHNMhboIwHNMhboIwHNMhboIwHNMhboo0ABrT5T7hKuRAK2RECzjAX6KFBAxz8eCyjQIZECOh49r/0xnBcIKJBPqIBOCvqsyR0IKJBPrIDWXr7uIgEF8gkW0PFpsxfxAgrkEy2g5Yv4JrugAgrks5GAvt57me3uvx8e/nf61gIK5LOJgJZ7jYNXuR8mjYAC+WwioE2P/GQkoEA+G9oDFVBg92zkPdDjorib+2HSCCiQz2aOwn/cL/b+Osn9SAkEFMhnIy/h/zz8W/rl61kJKJDPhg4iNVj/IysBBfLZSEB/P1h1X0CBHRDtSqSGBBTIR0CzjAX6SECzjAX6aHMB/Tksvfua++HqEVAgn00F9OO92RH4wdPcD1iHgAL5bCigr5dOYvrtW+6HvD0BBfLZTECPq13PB8Ph2xf7xVYv6xRQIJ+NBPT7/mK/c1Tui25xbTsBBfLZSECPlvc6j7a5CyqgQD6bX1C53B29s7V3QQUUyGfzCypvdXllAQXyEdAsY4E+8hI+y1igjxxEyjIW6KONBPS0KIr5BUgfy++f5X7MWxNQIJ/NnEhf7nVWn+lxcvL2sRPpgV2xmYCOni9dyrm9d0AFFMhpQ9fCjxYXww+2eSm8gAIZbW45u89/Hh4e/vEu98PVI6BAPhZUzjIW6KONBPT13svcj5JIQIF8Nn8i/VYJKJDP5i/l3KDiEnW2bu+ZAbtgQ3ugAgrsno28B3q81ZPnlwkokM9mjsJ/3K8uRMr9SAkEFMhnIy/h/zz828rLaMvZAbtgQweRCgEFds5GAvr7war7AgrsAFciZRkL9JGAZhkL9JFLObOMBfrIpZxZxgJ9tNOXcq4TUCCfnb6Uc52AAvm4lDPLWKCPXMqZZSzQRy7lzDIW6COXcmYZC/SRSzmzjAX6yJVIWcYCfSSgWcYCfSSgWcYCfbT5gI7+PPzjW+4HvS0BBfJpN6DnF3H+PPm6dtsWCCiQz4YCulRNAQV2hIBmGQv0kYBmGQv0kYBmGQv0kYBmGQv0kYBmGQv0kYBmGQv0kYBmGQv0UcCA/vwyLC1OzK/35AQUyCZaQD89Pl9W9NcntSMqoEA+sQL6YymfE7/VvKpeQIF8QgX0+36133lwrygG//nn4b2qoHfqFVRAgXxaD+jgr+ody7f7s28m3yYGdPS8DOaH6TeDV+WXN/t1P+5TQIF8Wg/oZRIDerzY4Zx/0ny1S/qs1pMTUCCbQAGtdkDntTwtiofV17qfOC+gQD7tBnT0eXiZd0kLKi+/eVp+P9kZLXdBa70LKqBAPoE+0uNCQCff1z0iJaBAPrECWh06mvi+L6DAtgUK6Pjo/A3P+fGk05onMgkokE+kgJa1nB46Wnz3aX9+yy0JKJBPpIBWh+GLvX8M376YHsk/e1z7iL6AAvlECui0mFPVu6HVSVJ7H2rdg4AC+YQK6Hj0etbPB9Ubn2ePBk9cCw9sTayAlj6/Ofwj7TzSioAC+YQLaDMCCuQjoFnGAn0UMKCjk+oC0XcnKa/ja01XQYFrRQvolxdLi5I8eF93cwEF8okV0LUV6fde3bzRMgEF8gkV0NNqRfri4HBqsiL9oNZyoAIKZBQpoNWJ84OXSzdUV3K2dyWSgALXixTQ4+JiLquktnYtvIAC1wsU0OUV6efaXI1JQYHrBQroZWt/trkeqIAC1xPQbKOBvgkU0NmHGa/wEh7YnkABrVakv1DL6m3R1j6VU0CB60UKaPUp8HeW1//88bxY3ym9loAC+UQKaHUeU1nMw78mn438dnomfa2zmAQUyChUQMcf9y9cyjl4Wu8OBBTIJ1ZAx6M3ywmtvSC9gAIZBQtoafRl+Obw8PDJ8H3CenYCCuQTL6CNCCiQj4BmGw30jYBmGw30TciA1r2A85yAAvkIaLbRQN8IaLbRQN8IaLbRQN8IaLbRQN8IaLbRQN8EC+jZ7welahWRX6tv7tfNqIAC+UQL6KOVtURq74cKKJCPgGYbDfRNsIBOeQ8U6AIBzTYa6BsBzTYa6BsBzTYa6BsBzTYa6BsBzTYa6JuQAR3/PPmatqGAAvnEDGgyAQXyEdBso4G+CRrQn8Phu2/jUe0X8gIK5BMyoB/vTS/jPHu096HelgIK5BMxoK/n18GfPSoGr657Kpeo80ACClwnYECPywzu/X2/DOjoeVHc+XbNUxFQoEXxAvp9vyieljuf1ZmgVUGf1dlYQIF84gX0qCjujmcBHZ9Ofrg9AQXyCRfQcqezet9zFtByd/S61/BrBBTIJ1xAZ5dxzgJa96JOAQXyEdBso4G+CRdQL+GBrggX0Oog0sNFQI8dRAK2Jl5AT4vpOfRVQMvvncYEbEu8gFbnfg5eVgEd/bO4/kT6dQIK5BMvoKsfbXztpZzrBBTIJ2BAJ/ugMxYTAbYnYkDH4x8vqvWYBg/e191QQIF8YgY0mYAC+QhottFA3whottFA3wQL6OjN7wf/8Y/zM5favZRTQYHrxArov/en5y49mSdUQIHtCRXQ48XpS/PT5wUU2J5IAa3Wot97eXLyuvo6zaaAAtsTKaDH8z3PH4/nBRVQYHsCBXTpA5AWnyYnoMD2BArociyrgt4dCyiwTUEDOllR5KGAAtsUNaDVEaXBKwEFtihQQC98CHy1sPIHAQW2J1BAL35+R/njL/9PQIGtiRTQ6jzQB1/Pfz6anFMvoMCWRAro5Eqk5V6+FlBgi0IFdPxxf7WX5c8CCmxLrICOR5/+WPkQudHrfQEFtiRYQJsSUCAfAc04HOgXAc04HOgXAc04HOiX4AF1JRKwPQKacTjQLwKacTjQL8EDOv558vXmQecEFMgnekBrElAgHwHNOBzoFwHNOBzoFwHNOBzoFwHNOBzoFwHNOBzoFwHNOBzoFwHNOBzol0ABrT4K/hKuRAK2REAzDgf6JVBAxz8eCyjQIZECOh49L4qHje5BQIF8QgV0UtBnTe5AQIF8YgW09vJ1F9UOqIQCVwoW0PFpsxfxdaeroMDVogW0fBHfZBdUQIF8ogV0/P3w8L/TtxZQIJ9wAW1GQIF8BPSG8QIKXEVAbxgvoMBVBDT7FkBfCGj2LYC+ENDsWwB9IaDZtwD6QkCzbwH0hYBm3wLoCwHNvgXQFwKafQugLwQ0+xZAXwho9i2AvhDQ7FsAfSGg2bcA+kJAs28B9IWAZt8C6AsBzb4F0BcCmn0LoC8ENPsWQF8IaPYtgL4Q0OxbAH0hoNm3APpCQFvYBOgHAW1hE6AfBLSFTYB+ENAWNgH6QUBb2AToBwFtYROgHwS0hU2AfhDQFjYB+mGnA1pcIuVe8j8zYBcI6C3uJf8zA3bBTgd0XdJ0FRS4lIC2tBGw+wS0pY2A3SegLW0E7D4BbWkjYPcJaEsbAbtPQFvaCNh9AtrSRsDuE9CWNgJ2n4C2tBGw+wS0pY2A3SegrW0F7DoBbW0rYNcJaGtbAbtOQFvbCth1AtraVsCuE9DWtgJ2nYC2thWw6wS0ta2AXSegrW0F7DoBbXEzYLcJ6O02k1BgjYDecjsFBS4S0Na3BHaVgLa+JbCrBLT1LYFdJaAb2BTYTQK6gU2B3RQ3oKMv777W3khAgXyiBfTzcPih+vrjcXVm0eC/am4uoEA+sQL6cb/K5p1v49PJN9Pv62gyXQUFVoUK6PGsmnfPHpV7n4eH96rva92DgAL5RAro93K3c++vt+WL978VxcPqlqqoz+rchYAC+UQK6NH0Ffvo+fmO51HNXVABBfIJFNAqnJPdzdPy9fur6W3lTmmtd0EFFMgnUEDPHhW//Gvlm5Vvb0VAgXwEdCPbArsoUEDLl/DTV+7l63Yv4YHtCxTQxRGj8uv0IPzkMLyDSMCWRAroaRnO305OXhfFwfm+qNOYgG2JFNDJrufk8qP/KcP5YDh8UftSJAEF8gkV0NHrST/Lvc/5NUn1DiE1nK6CAitCBXQ8/vLnwf0n1T7nv6cXwz+odyl8hoCqKDAXLKDnRp//PPyr9np2OQKqoMBU2ICmaRxQH88JLAhovY0FFFgIGNDRyefhcPjupObbnxNNAzr9H0AlWkC/vCjOPXhfd/MMAVVQYCZWQKcf5LFk71W9O2g23enrdwEFpkIFdPpBHgeHU/cm54TWuhApU0AVFKhECujkgzxeLt3wqQxqvTPpMwVUQ4FxrIAeFxdzWSX1YZ27yBdQBQUCBXSxIv2S05oXwzec7ryb3gwFxqECetniyZtcUHm88van3VBAQOtYC6iCQp8FCuhiRfolG38Jv/Stk+qh7wIFdP6xxkuqt0U3tiL9Ju4PiCRSQKv15+98WLrhx/Nifaf0WgIK5BMpoNNllAeHfw0rb6dn0tc6i0lAgYxCBXT8cf/CpZyDp/XuQECBfGIFdDx6s5zQwZO6KzIJKJBPsICWRl+Gbw4PD58M3yesZ5d9ugoKPRYvoI0IKJCPgHbuHoEoBLRz9whEETKgdS/gPNdGQBUU+kpAmxJQ6C0BbUxBoa8EtDEv4qGvBLSxpVXttBR6RUAbE1Doq2ABPfv9oFStIvJr9c39uhlt6T3Q+d1OFwnN/xBAJ0UL6KOVtURq74e2tIe4HFB7odAbAprFtJqTfVGfNwe9ESygU916D3R6v7NP+Fj6Auw6Ac2iWH7xXixyCuw0Ac2muPBOqL1Q2HUCmt/sXVAFhV0noO3RUNhxAtqmpfdFN/q4wEaEDOj458nXtA03v0M4O54koLCDYgY02RZC5oAS7CwB3cSDFvMd0S08OtCaoAH9ORy++zYe1X4hv72EXbEbKqkQWMiAfrw3vYzz7NHeh3pbbnMfcL2grvuE2CIG9PX8OvizR8Xg1XVP5RKtP7vrrD5+V54VkChgQI/L4Oz9fb8M6Oh5Udz5ds1T6WBAi+UfxhZwgsjiBfT7flE8LXc+qzNBq4I+q7Px1ku1cr3n+q3zH4q12zb0/IAa4gX0qCjujmcBHZ9Ofri97YdosWLT2qv5+dfl3eWlL1t6vsDVwgW03Oms3vecBbTcHb3uNfyaDnTo8vcSrspmZ959ANaFC+jsMs5ZQOte1NmBChVXXJl0SSTPd0u9VwpdJKBhSCh0TbiAhn8J38j8tf22nwdQCRfQ6iDSw0VAj8MdRGpqvhs6X+Rp8TJ/q88K+ileQE+L6Tn0VUDL74OdxpTB2tGm5aNMOzA/iCNeQKtzPwcvq4CO/llcfyL9ul0I6PjSY/Z5jtXvxh8PbEq8gK5+tPG1l3Ku25GATl1y0P7y86NucVdX3wFwpYABneyDzkRaTGQzVhp4w47p/N3TtX3YeU/nw6Z7ugILF0QM6Hj840W1HtPgwfu6G/bgv/6Lr+uXMroy7LKVAs7v4Ko3CK7rcY4nPz/pdfFrVMx3oouVJ339r9nqvyK9+GtnO2IGNFlP/q8fj68AAAz5SURBVEta79x5D8fj9ShevvHKgCsCm/gHejGPV2T6Rtc956s3ufp+Fv/+dPvXmM4Q0F10edeurkbNO7pwFOvq/3Ppl2ER35tid2neLj7aDfdx2boCiS5ZxvXidNP/GAkvYEBHJ5+Hw+G7k1qH32d6/ou8WqGsd1lcsW93i0Sl92XlsWtscs0kUmdRb8Yr/5XUmwCdEi2gX14s/SJ6D7QDLg/Elf9XsFYUeYpa6x66/SKOFbEC+uPxhd+1vXpnMQloi6b/8XOj9WLelOj5hqklX3v0zU96V4UK6Ol+9Zd/cDhVHYgvBrUuRBJQOi8xkq2ZPKdt/6F0VqSAVmfQD14u3fCpDGqtxZgElIAu1KzJ9kXjtyTON886x2uf+0YeKU2kgB4XF3NZJfVhnbvo9N8FdE+9uNbtdM0HuPIOpk91/pTH1x2YPL8gpJhfHtLoj6fBxpffY+47nLvsA5BOa14ML6DQRHGeq83Y3COtPe7t/jyy/wnnvsO5yxZP7tOCytBty925XYTqpOq6O7gsgDfFcTHm8pG3fgJNnv6l95j7DucEFOiWQAGdrUW/wkt4YHsCBbRai/5CLau3RXu2Ij3QHZEC+n2/LOjy+nU/ntddEFRAgXwiBbQ6j6ks5uFfw8rb6Zn0tc5iElAgo1ABHX/cv3CobPC03h0IKJBPrICOR2+WEzp4UndFJgEF8gkW0NLoy/DN4eHhk+H7hPXsBBTIJ15AGxFQIB8BBUgkoACJBBQgUfCAuhYe2B4BBUgkoACJggd0/PPka53hAgrkEz2gNQkokI+AAiQSUIBEcQM6+vKu1tufEwIK5BMtoJ+Hw8mSyj8eT5Zj+q+amwsokE+sgE7XA73zbXw6X9Wu1icibekDUoGdlTtyba9IX7p79qhamX6yJH2tj0QSUCCr3JVr9zOR9v56W754/9vsozyqoj5r46F26qW+yXSVyXTVFifT+qdyVh/FOd/xPKq7C3pLfhm6ymS6ymQyPXRbd1yFc7K7eXr+WZzlTmnNd0Fvxy9DV5lMV5lMpodu644X170vXQBf91r42/LL0FUm01Umk+mh27pjAU1kMl1lMl21iwEtX8JPX7mXr9u9hK/BZLrKZLpqFwO6OGJUfp0ehJ8chncQ6SYm01Um01U7GdDTMpy/nZy8LoqD831RpzHdyGS6ymS6aicDOtn1rNz5nzKcD4bDF0XtS5FuyS9DV5lMV5lMpodu765Hryf9LPc+59cktXMIyS9Dd5lMV5lMpodu886//Hlw/0m1z/nv6cXwD1rZ//TL0F0m01Umk+mhN/Mwo89/Hv5Vfz27W/LL0FUm01Umk+mht/bIGfll6CqT6SqTyfTQW3vkjPwydJXJdJXJZHrorT1yRn4ZuspkuspkMj301h45I78MXWUyXWUymR56a4+ckV+GrjKZrjKZTA+9tUfOyC9DV5lMV5lMpofe2iNn5Jehq0ymq0wm00Nv7ZEBghNQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpAofkB/vNgvisGDD9t+HvWN3hwURfHr8lNfn0ys6X3fL54tfgg8mdHH6q/m4Om3xS2BJ/PlFk89wmTOHv3yr/OfbjOHDcwqfEA/ln9ElcF/bfuZ1DV/5kXx28WbzicTa3pnj4rzgAaezPf5X83e/L/YuJMZvZ7/mj2c3xRzMqPnxVJAbzOHTcwqekBPi4VnN4/ukqVnXtxdu+nZVbd02tHS8ww8mUU/i+LOdB808GSOzp/orKAxJzMqJ3Ie0NvMYSOzCh7Qapdnr9xD//K4WP7nKYDJM38/nj71wavFTSuTCTa906Xf1cCTqZ7o4Gn1Fsv+LDqBJ1P9Y1C9hv3xPPavWbn/WZw/udvMYTOzCh7Q4/k+QvXn+/Cm0V1yutjvrJ765Nv1ycSaXvUbuwho4MmUT3T2H9zp7CnHnszs9+zoyqceYDKfJi8KFh28zRw2M6vYAS3/aKb/qk7+pb3z7frRnXJ0/rpi9tTXJxNretV7VP97PqvAk1l6orNvA0+m/D2bP9HZP9kRJ/Oj3IksHjxeBPQ2c9jQrGIHtNznmf/JLP15RTObxfpkYk2v/Bf/2fE8oIEnU/7ndnf1lsCTWQ9oxMkcV++pLB1Eus0cNjSr2AE9fx28sksXzOyven0yoaZXdufheBHQwJM5XXvBF3gyqy/hq+cZcTLHg9++LR+Fv80cNjSr8AFd/K4fd/Kv/jZmf9Xrk4k0vfLXu/xXYDmgUSczeXKTMwh/fTq9JfBkJm9MTw4ivZi9JRhxMj+rJ74a0BvnsKFZxQ7o8h/M+o5DEOWv+OQFxvpkIk1v+lJx8YwDT6aayfHs9JfpeaCBJzN7/3AXJrMU0NvMYUOzEtBtq85vmx+Ej/mbXZk9vR0J6N8WJxBO/pMNPJnx9ASmyoPpO4JhJyOg+QX5q7/O+fnBYX+zx+fv2O9AQCcnHE5e9f6sruGp/m2LO5nx5KnODJ7Ofo45GQHNL8hf/TVGi/Ob4/5mj6u9tgv/CMSdzCSg59fsrLwxMY42mWk/f/s6+9fg2TjwZAQ0vyB/9Vf7sbgMKfBv9mXdDDyZo+L8rMHp4dvAk1laneBjMQlQ2MkIaH7dP354vWq1g8V6FREPj06dnzm5C0fhj5ae6PRJB57Mpaf3xJyMo/D5df8MtmtNXl4tLpGIeILe1PnbbFMPI0+mms16QANP5tnS95En4zzQ/Lp/DcV1XhcrrywiXiIydUlA405m5b+84+iTWX8hG3YyrkTKr/tX8V7juFj9a414kfLUJQGNO5nq2S0WrZjuugSezPp+WNjJLAXUtfC5BFhH5irlr/Yvq0tlh1wmZ9X5Dk/gyVQn5k7/e5sddwk8mWo1u9nfyOyUgrCTWV5Q2WpMmcxX1ezySoaXm19/tHrThcmEm955QANPpopO9UR/Lt5jCTyZo+XTmCY7o1EnsxzQ28xhM7MKHtDNrDrdhtWXvdOWrk8m2vSW3nILPJmlv5vwK9JPF2md2luschpxMisf6XGbOWxkVtEDOv53gE9zucTo+SUBvWQywaa3fMwi8GTmT3R++WPkyZz/pt2JPZnVz0S6zRw2MavwAQ3xeYLrlncMzgMa9OMSz62ccBd4Mj/f3Cuf6P3357cEnsyX3ydPNPpkVgPqUzkBghNQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpBIQAESCShAIgEFSCSgRPDj5bafAVxCQOm+0evi4bafA1xCQOm+00JA6SQBpfsElI4SULpPQOkoAaX7BJSOElC6rsznxLPx+Ki48+3TvaK4/6G8ffTxoLz1/stv84EXb5j+/OuTr9t53vSAgNJ1qwH9WH07eDUef9+f3b73YTru4g2Ln+2+0hYBpetWAvrrpIp3l/NY/PKvatjFG84eLX6uNoUWCCjdt3gP9KiM4Z3J/mWVx72X1cv0/UlP1284Ln9+X3798bzc5tvVdw7pBJTuWw7orIWni+/Kclav6NduOJrveI6ez/ZRITcBpfuWAzp7P/NoEsml/3fthuP5ziq0RkDpvuWATvcqy73Mxcvy7/vlS/a1G6ZvnQ7+4x9evdMeAaX7lgI6281cPkJUvS/6be2G6Rumk4g6j4m2CCjdtx7QpUPu016u3TAej944j4mWCSjdd2lAV4+sr90w8emFgtImAaX7Ln0Jv3pkfe2GuZ9vXxTOY6IlAkr3rQd09PzC2fGX3TAv6pVxhYYElO5bD2h1ktIvHxbfPrzkhvNTngSUtggo3bc4Sf48oNVR98HT8safr6eXxq/dUJ3G9Ft1/P3L4+mlSZCdgNJ900Pszy6eLV+sHGRfu+Ho/Gc7oLRDQOm+6g3Oi5cbjU8vnqR08YbpVpW9V5feLTQloAQwqo6k/7Ya0PHozYXlPtdu+PKiaurSiqGQl4ACJBJQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJBJQgEQCCpBIQAESCShAIgEFSCSgAIkEFCCRgAIkElCARAIKkEhAARIJKEAiAQVIJKAAiQQUIJGAAiQSUIBEAgqQSEABEgkoQCIBBUgkoACJBBQgkYACJPr/F/IhTRnfF1cAAAAASUVORK5CYII=" width="672" /></p>
+<pre class="r"><code>varImpPlot(rf_m, cex = 0.6)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
 </div>
 
 

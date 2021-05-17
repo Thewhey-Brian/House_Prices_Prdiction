@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ## Libaraies needed:
@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(skimr)
+library(randomForest)
 ```
 
 ## Read in data
@@ -36,7 +37,71 @@ dat <- dat %>%
            BsmtExposure = as.factor(replace_na(as.character(BsmtExposure), "NoBsmt")),
            BsmtFinType1 = as.factor(replace_na(as.character(BsmtFinType1), "NoBsmt")),
            BsmtFinType2 = as.factor(replace_na(as.character(BsmtFinType2), "NoBsmt")),
-           HeatingQC = recode(HeatingQC , "Ex" = 5, "Gd" = 4,"TA" = 3,"Fa" = 2,"Po" = 1))
+           HeatingQC = recode(HeatingQC , "Ex" = 5, "Gd" = 4,"TA" = 3,"Fa" = 2,"Po" = 1),
+           KitchenQual = recode(KitchenQual, "Ex" = 5, "Gd" = 4,"TA" = 3,"Fa" = 2,"Po" = 1),
+           Functional = recode(Functional, "Typ" = 8, "Min1" = 7,"Min2" = 6,"Mod" = 5,
+                               "Maj1" = 4, "Maj2" = 3, "Sev" = 2, "Sal" = 1),
+           FireplaceQu = as.factor(replace_na(as.character(FireplaceQu), "No")),
+           GarageType = as.factor(replace_na(as.character(GarageType), "No")),
+           GarageFinish = as.factor(replace_na(as.character(GarageFinish), "No")),
+           GarageQual = as.factor(replace_na(as.character(GarageQual), "No")),
+           GarageCond = as.factor(replace_na(as.character(GarageCond), "No")),
+           PoolQC = as.factor(replace_na(as.character(PoolQC), "No")),
+           Fence = as.factor(replace_na(as.character(Fence), "No")),
+           MiscFeature = as.factor(replace_na(as.character(MiscFeature), "None")),
+           )
            
 glimpse(dat)
+
+skim(dat)
+```
+
+## Missing data?
+
+```{r}
+dat %>% filter(is.na(MasVnrType) | MasVnrType == "None") %>% head() # True missing data
+
+dat %>% select(LotFrontage) %>% head() # True missing data
+
+dat %>% select(MasVnrType, MasVnrArea) %>%
+    filter(is.na(MasVnrType)) # True missing data
+```
+
+## Imputation - Random Forest
+
+```{r}
+dat <- dat %>% select(-Id)
+glimpse(dat)
+```
+
+```{r, eval=FALSE}
+set.seed(100)
+house <- rfImpute(SalePrice ~ ., dat)
+
+save(house, file ="imputed.rda")
+```
+
+## Random forest
+
+```{r}
+load("imputed.rda")
+
+head(house)
+
+dim(house)
+```
+
+```{r, eval=FALSE}
+tune_rf <- tuneRF(x = house[,2:80], y = house[,1], ntreeTry = 500)
+tune_rf
+tune_rf[which.min(tune_rf[,2]),1]
+```
+
+```{r}
+m <- 26
+
+rf_m <- randomForest(x = house[,2:80], y = house[,1], mtry = m, ntree = 1000,
+                     keep.forest = TRUE)
+plot(rf_m)
+varImpPlot(rf_m, cex = 0.6)
 ```

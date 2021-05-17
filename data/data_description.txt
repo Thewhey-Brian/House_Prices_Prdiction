@@ -380,24 +380,24 @@ Kitchen: Kitchens above grade
 
 KitchenQual: Kitchen quality
 
-       Ex	Excellent
-       Gd	Good
-       TA	Typical/Average
-       Fa	Fair
-       Po	Poor
+       Ex ["5"]	Excellent
+       Gd ["4"] Good
+       TA ["3"]	Average/Typical
+       Fa ["2"] Fair
+       Po ["1"] Poor
        	
 TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
 
 Functional: Home functionality (Assume typical unless deductions are warranted)
 
-       Typ	Typical Functionality
-       Min1	Minor Deductions 1
-       Min2	Minor Deductions 2
-       Mod	Moderate Deductions
-       Maj1	Major Deductions 1
-       Maj2	Major Deductions 2
-       Sev	Severely Damaged
-       Sal	Salvage only
+       Typ	["8"] 	Typical Functionality
+       Min1 ["7"] 	Minor Deductions 1
+       Min2 ["6"] 	Minor Deductions 2
+       Mod ["5"] 	Moderate Deductions
+       Maj1 ["4"] 	Major Deductions 1
+       Maj2 ["3"] 	Major Deductions 2
+       Sev ["2"] 	Severely Damaged
+       Sal ["1"] 	Salvage only
 		
 Fireplaces: Number of fireplaces
 
@@ -408,7 +408,7 @@ FireplaceQu: Fireplace quality
        TA	Average - Prefabricated Fireplace in main living area or Masonry Fireplace in basement
        Fa	Fair - Prefabricated Fireplace in basement
        Po	Poor - Ben Franklin Stove
-       NA	No Fireplace
+       NA	["No"] No Fireplace
 		
 GarageType: Garage location
 		
@@ -418,7 +418,7 @@ GarageType: Garage location
        BuiltIn	Built-In (Garage part of house - typically has room above garage)
        CarPort	Car Port
        Detchd	Detached from home
-       NA	No Garage
+       NA	["No"] No Garage
 		
 GarageYrBlt: Year garage was built
 		
@@ -427,7 +427,7 @@ GarageFinish: Interior finish of the garage
        Fin	Finished
        RFn	Rough Finished	
        Unf	Unfinished
-       NA	No Garage
+       NA	["No"] No Garage
 		
 GarageCars: Size of garage in car capacity
 
@@ -440,7 +440,7 @@ GarageQual: Garage quality
        TA	Typical/Average
        Fa	Fair
        Po	Poor
-       NA	No Garage
+       NA	["No"] No Garage
 		
 GarageCond: Garage condition
 
@@ -449,7 +449,7 @@ GarageCond: Garage condition
        TA	Typical/Average
        Fa	Fair
        Po	Poor
-       NA	No Garage
+       NA	["No"] No Garage
 		
 PavedDrive: Paved driveway
 
@@ -475,7 +475,7 @@ PoolQC: Pool quality
        Gd	Good
        TA	Average/Typical
        Fa	Fair
-       NA	No Pool
+       NA	["No"] No Pool
 		
 Fence: Fence quality
 		
@@ -483,7 +483,7 @@ Fence: Fence quality
        MnPrv	Minimum Privacy
        GdWo	Good Wood
        MnWw	Minimum Wood/Wire
-       NA	No Fence
+       NA	["No"] No Fence
 	
 MiscFeature: Miscellaneous feature not covered in other categories
 		
@@ -492,7 +492,7 @@ MiscFeature: Miscellaneous feature not covered in other categories
        Othr	Other
        Shed	Shed (over 100 SF)
        TenC	Tennis Court
-       NA	None
+       NA	["None"] None
 		
 MiscVal: $Value of miscellaneous feature
 
