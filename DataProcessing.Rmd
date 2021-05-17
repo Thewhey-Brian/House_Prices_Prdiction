@@ -142,6 +142,7 @@ res.tree.test <- (as.integer(dat.test$HighPrice) - 1) - (as.integer(tree.yhat) -
 mse.tree.test <- sum(res.tree.test^2)/length(res.tree.test)
 mse.tree.test
 ```
+
 ## Linear Regreesion
 ```{r}
 library(glmnet)
