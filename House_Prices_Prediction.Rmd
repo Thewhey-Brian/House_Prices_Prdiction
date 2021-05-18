@@ -178,8 +178,9 @@ house1  <- dat.train[2:81]
 # Build the tree
 tree <- rpart(HighPrice ~ ., data = house1, method = "class",
               control = rpart.control(minsplit = 10, cp = 0.001))
+tree.pruned <- prune(tree, cp = 0.01511335)
 renderPlot({
-  prp(tree, cex = 0.6, extra = 0)
+  prp(tree.pruned, cex = 0.6, extra = 0)
 })
 ```
 
@@ -225,7 +226,7 @@ selectInput("Neighborhood", label = h5("Neighborhood"),
                    ), 
     selected = "OverallQual")
 
-numericInput("GrLiveArea", label = h5("Above grade (ground) living area square feet"), value = 1500)
+numericInput("GrLivArea", label = h5("Above grade (ground) living area square feet"), value = 1500)
 
 
 sliderInput("ExterQual", label = h5("Exterior quality"), value = 3, min = 1, max = 5)
@@ -242,9 +243,9 @@ numericInput("GarageArea", label = h5("Size of garage in square feet"), value = 
 sliderInput("KitchenQual", label = h5("Kitchen quality"),  value = 3, min = 1, max = 5)
 helpText("5-Excellent, 4-Good, 3-Average/Typical, 2-Fair, 1-Poor")
 
-sliderInput("yearBuilt", label = h5("Year Built"), value = 1970, min = 1872, max = 2010)
+sliderInput("YearBuilt", label = h5("Year Built"), value = 1970, min = 1872, max = 2010)
 
-numericInput("2stFlrSF", label = h5("Second Floor square feet "), value = 500)
+numericInput("2ndFlrSF", label = h5("Second Floor square feet "), value = 500)
 
 numericInput("BsmtFinSF1", label = h5("Finished square feet of basement area"), value = 384)
 
@@ -258,21 +259,125 @@ selectInput("BsmtQual", label = h5("Evaluates the height of the basement"),
 numericInput("LotArea", label = h5("Lot size in square feet"), value = 10516)
 ```
 
-Column {data-width=650}
+Column {data-width=450}
 -----------------------------------------------------------------------
 
-### Chart A
-```{r, eval=FALSE}
+### Input Summary
+*Please check the Code Book in "About" section for more information of variables.*
+```{r}
 userinput <- reactive({
-  df <- data.frame(input$OverallQual, input$Neighborhood, input$GrLivArea, input$ExterQual,
+  # df_input <- matrix(c(input$OverallQual, input$Neighborhood, input$GrLivArea, input$ExterQual,
+  #                  input$GarageCars, input$TotalBsmtSF, input$'1stFlrSF', input$GarageArea,
+  #                  input$KitchenQual, input$YearBuilt, input$'2ndFlrSF', input$BsmtFinSF1,
+  #                  input$BsmtQual, input$LotArea), nrow = 1)
+  df_input <- data.frame(variable = c("OverallQual", "Neighborhood", "GrLivArea", "ExterQual", "GarageCars", 
+                                      "TotalBsmtSF", '1stFlrSF', "GarageArea", "KitchenQual", "YearBuilt", 
+                                      '2ndFlrSF', "BsmtFinSF1", "BsmtQual", "LotArea"), 
+                         inputs = c(input$OverallQual, input$Neighborhood, input$GrLivArea, input$ExterQual,
                    input$GarageCars, input$TotalBsmtSF, input$'1stFlrSF', input$GarageArea,
                    input$KitchenQual, input$YearBuilt, input$'2ndFlrSF', input$BsmtFinSF1,
-                   input$BsmtQual, input$LotArea)
-  return(df)
+                   input$BsmtQual, input$LotArea))
+  return(df_input)
 })
 
-predict_rf <- predict(rf_pred, df)
+renderDataTable({
+  userinput()
+})
 ```
+
+Column {data-width=450}
+-----------------------------------------------------------------------
+
+### Prediction Summary
+```{r}
+get_preds <- reactive({
+  house_pred <- house %>%
+    select(OverallQual, Neighborhood, GrLivArea, ExterQual, GarageCars, TotalBsmtSF, 
+           '1stFlrSF', GarageArea, KitchenQual, YearBuilt, '2ndFlrSF', BsmtFinSF1,
+           BsmtQual, LotArea, SalePrice, HighPrice)
+  df_input <- data.frame(input$OverallQual, input$Neighborhood, input$GrLivArea, input$ExterQual,
+                 input$GarageCars, input$TotalBsmtSF, input$'1stFlrSF', input$GarageArea,
+                 input$KitchenQual, input$YearBuilt, input$'2ndFlrSF', input$BsmtFinSF1,
+                 input$BsmtQual, input$LotArea)
+  names(df_input) <- c("OverallQual", "Neighborhood", "GrLivArea", "ExterQual", "GarageCars", 
+                       "TotalBsmtSF", '1stFlrSF', "GarageArea", "KitchenQual", "YearBuilt", 
+                       '2ndFlrSF', "BsmtFinSF1", "BsmtQual", "LotArea")
+  # random forest
+  rf_input <- rbind(house_pred[1, 1:14], df_input)
+  rf_input <- rf_input[-1,]
+  pred_rf <- predict(rf_pred, rf_input)
+  # cart
+  house_pred1 <- house_pred %>%
+      select(-SalePrice)
+  tree1 <- rpart(HighPrice ~ ., data = house_pred1, method = "class",
+                control = rpart.control(minsplit = 10, cp = 0.001))
+  # Prune the tree
+  bestcp1 <- tree1$cptable[which.min(tree1$cptable[, "xerror"]), "CP"]
+  tree.pruned1 <- prune(tree1, cp = bestcp1)
+  pred_card <- predict(tree.pruned1, df_input, type = "class")
+  # lasso
+  # df_input_lasso <- df_input
+  # df_input_lasso$SalePrice <- 1
+  # all_data <- rbind(df_input_lasso, house_pred %>% select(-HighPrice))
+  # X <- model.matrix(SalePrice ~ ., data = all_data)[, -1]
+  # Y <- all_data$SalePrice[-1]
+  # lasso_fit <- cv.glmnet(X[-1, ], Y, alpha = 1)
+  # best_lambda <- lasso_fit$lambda.min
+  # best_model <- glmnet(X[-1, ], Y, alpha = 1, lambda = best_lambda)
+  # pred_lasso <- predict(best_model, newx = X[1, ])
+  out <- data.frame("Random Forest" = pred_rf,
+                    "CART" = pred_card) 
+                   #"LASSO Regression" = pred_lasso)
+})
+renderDataTable({
+    get_preds()
+})
+
+```
+
+### Let see ...
+```{r}
+cart_res <- reactive({
+  house_pred <- house %>%
+    select(OverallQual, Neighborhood, GrLivArea, ExterQual, GarageCars, TotalBsmtSF, 
+           '1stFlrSF', GarageArea, KitchenQual, YearBuilt, '2ndFlrSF', BsmtFinSF1,
+           BsmtQual, LotArea, SalePrice, HighPrice)
+  df_input <- data.frame(input$OverallQual, input$Neighborhood, input$GrLivArea, input$ExterQual,
+                 input$GarageCars, input$TotalBsmtSF, input$'1stFlrSF', input$GarageArea,
+                 input$KitchenQual, input$YearBuilt, input$'2ndFlrSF', input$BsmtFinSF1,
+                 input$BsmtQual, input$LotArea)
+  names(df_input) <- c("OverallQual", "Neighborhood", "GrLivArea", "ExterQual", "GarageCars", 
+                       "TotalBsmtSF", '1stFlrSF', "GarageArea", "KitchenQual", "YearBuilt", 
+                       '2ndFlrSF', "BsmtFinSF1", "BsmtQual", "LotArea")
+  house_pred1 <- house_pred %>%
+      select(-SalePrice)
+  tree1 <- rpart(HighPrice ~ ., data = house_pred1, method = "class",
+                control = rpart.control(minsplit = 10, cp = 0.001))
+  # Prune the tree
+  bestcp1 <- tree1$cptable[which.min(tree1$cptable[, "xerror"]), "CP"]
+  tree.pruned1 <- prune(tree1, cp = bestcp1)
+  pred_card <- predict(tree.pruned1, df_input, type = "class")
+  return(pred_card)
+})
+
+renderText({
+  cart_res()
+})
+
+# renderImage({
+#   if(as.numeric(cart_res()) == 1){
+#     knitr::include_graphics("https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/Daco_1709506.png?raw=true")
+#   }
+#   else{
+#     knitr::include_graphics("https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/Daco_1709506.png?raw=true")
+#   }
+# })
+
+
+
+
+```
+
 
 About {data-icon="fa-table"}
 =====================================     

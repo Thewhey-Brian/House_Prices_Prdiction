@@ -130,8 +130,9 @@ tune_rf[which.min(tune_rf[,2]),1]
 ```{r}
 m_pred <- 4
 set.seed(100)
-rf_pred <- randomForest(x = house_pred[,1:14], y = house_pred[,15], mtry = m_pred, ntree = 500,
-                     keep.forest = TRUE)
+rf_pred <- train(x = house_pred[,1:14], y = house_pred[,15], 
+                 method = "rf", ntree = 500,
+                 keep.forest = TRUE)
 plot(rf_pred)
 varImpPlot(rf_pred, cex = 0.6)
 ```
