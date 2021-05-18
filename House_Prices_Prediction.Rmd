@@ -70,7 +70,7 @@ renderPlotly({
   ggplotly(ggplot(dat(), aes(x = !!as.name(ctgy()), y = SalePrice)) +
       geom_col(aes(fill = !!as.name(sub_ctgy()))) +
       theme(axis.text.x = element_text(angle = 45)) +
-      labs(x = ctgy(), y = "Sale Prices", title = paste0("Sale Prices by ", ctgy())))
+      labs(x = ctgy(), y = " ", title = paste0("Sale Prices by ", ctgy())))
 })
 ```
 

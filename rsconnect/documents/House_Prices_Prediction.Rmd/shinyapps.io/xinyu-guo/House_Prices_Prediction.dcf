@@ -1,0 +1,13 @@
+name: House_Prices_Prediction
+title: House_Prices_Prediction
+username:
+account: xinyu-guo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4148585
+bundleId: 4613102
+url: https://xinyu-guo.shinyapps.io/House_Prices_Prediction/
+when: 1621370000.86258
+lastSyncTime: 1621370000.86259
+asMultiple: FALSE
+asStatic: FALSE
