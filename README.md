@@ -36,7 +36,7 @@ Our App runs on flexdashboard/Shiny platform in statistical software R. Here is 
 
 ## 4. Links:
 
-+ Link to App: https://www.shinyapps.io/admin/#/application/4148585 
++ Link to App: https://xinyu-guo.shinyapps.io/House_Prices_Prediction/
 
 + Link to video:
 
