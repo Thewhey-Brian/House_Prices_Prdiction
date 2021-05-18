@@ -6,6 +6,8 @@ output:
     orientation: columns
     vertical_layout: fill
     theme: cerulean
+    social: menu
+    #source_code: embed
     #theme: yeti
 ---
 
@@ -17,9 +19,11 @@ library(tidyverse)
 library(leaflet)
 library(htmltools)
 library(kableExtra)
-load("imputed.rda")
-# data_path <- "https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/house.csv"
-# house <- read_delim(data_path, col_names = T, delim = ",")[, -1]
+library(knitr)
+#load("imputed.rda")
+data_path <- "https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/house.csv"
+house <- read_delim(data_path, col_names = T, delim = ",")[, -1] %>% 
+  mutate_if(is.character, as.factor)
 ```
 
 Overview {data-icon="fa-globe"}
@@ -49,23 +53,38 @@ selectInput("sub_category", label = h5("Sub_Category"),
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Chart A
+### Sale Prices Distribution
 
 ```{r}
-ggplotly(ggplot(house, aes(x = Neighborhood, y = SalePrice)) +
-    geom_col() +
-    theme(axis.text.x = element_text(angle = 45)) +
-    labs(x = "Neighborhood", y = "Sale Prices", title = "Sale Prices by Neighborhood"))
+dat <- reactive({
+  return(house)
+})
+ctgy <- reactive({
+  return(input$category)
+})
+sub_ctgy <- reactive({
+  return(input$sub_category)
+})
+renderPlotly({
+  ggplotly(ggplot(dat(), aes(x = !!as.name(ctgy()), y = SalePrice)) +
+      geom_col(aes(fill = !!as.name(sub_ctgy()))) +
+      theme(axis.text.x = element_text(angle = 45)) +
+      labs(x = ctgy(), y = "Sale Prices", title = paste0("Sale Prices by ", ctgy())))
+})
 ```
 
 Column {data-width=350}
 -----------------------------------------------------------------------
-
-### Chart B
+### 
 
 ```{r}
+knitr::include_graphics("https://opencasestudies.github.io/img/icon-bahi.png")
+#plot(house %>% select(SalePrice, OverallQual, Neighborhood, GrLivArea, ExterQual, TotalBsmtSF))
+```
 
+### Locations Map
 
+```{r}
 df <- read.csv(textConnection(
   "Name,Lat,Long
   Bloomington Heights,42.056644274895284, -93.63526181058937
@@ -93,35 +112,17 @@ Somerset,42.05202886092242, -93.64514354404335
 Stone Brook,42.05974506919148, -93.6376352032556"
 ))
 
- renderLeaflet({
+leafletOutput("leaflet_map")
+output$leaflet_map <- renderLeaflet({
   leaflet(df) %>% addTiles() %>% addMarkers(~Long, ~Lat, popup = ~htmlEscape(Name))
 })
 ```
 
-### Chart C
-
-```{r}
-dat <- reactive({
-  return(house)
-})
-ctgy <- reactive({
-  return(input$category)
-})
-sub_ctgy <- reactive({
-  return(input$sub_category)
-})
-renderPlotly({
-  ggplotly(ggplot(dat(), aes(x = !!as.name(ctgy()), y = SalePrice)) +
-      geom_col(aes(fill = !!as.name(sub_ctgy()))) +
-      theme(axis.text.x = element_text(angle = 45)) +
-      labs(x = ctgy(), y = "Sale Prices", title = paste0("Sale Prices by ", ctgy())))
-})
-```
 
 House Price Analysis {data-icon="fa-signal"}
 =====================================     
 
-## Regression
+## Regression {data-width=250}
 
 ### Regression
 
@@ -130,34 +131,62 @@ House Price Analysis {data-icon="fa-signal"}
 library(glmnet)
 load("imputed.rda")
 set.seed(123)
-# dat.train <- house[train<-sample(1:nrow(house), floor(nrow(house)*0.7)),]
-# dat.test <- house[-train,]
 dat.train <- house
 X <- model.matrix(SalePrice ~ ., data = dat.train)[, -1]
 Y <- (dat.train$SalePrice - mean(dat.train$SalePrice))/sqrt(var(dat.train$SalePrice))
 lasso_fit <- cv.glmnet(X, Y, alpha = 1)
 best_lambda <- lasso_fit$lambda.min
 best_model <- glmnet(X, Y, alpha = 1, lambda = best_lambda)
-plot(lasso_fit)
-
+renderPlot({
+  plot(lasso_fit)
+})
 ```
 
 ###
 **Selected Variables From LASSO Regression**
 ```{r}
-fcts <- as.data.frame(as.matrix(coef(best_model))) %>% 
-  filter(s0 != 0) %>% 
-  arrange(desc(s0)) %>% 
-  rownames_to_column(var = "Variables") %>% 
-  mutate(Coefficients = round(s0, 6)) %>%  
+fcts <- as.data.frame(as.matrix(coef(best_model))) %>%
+  filter(s0 != 0) %>%
+  arrange(desc(s0)) %>%
+  rownames_to_column(var = "Variables") %>%
+  mutate(Coefficients = round(s0, 6)) %>%
   select(-s0)
 kbl(fcts) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
 ```
 
-## Random Forst
+## Classification {data-width=450}
+### Random Forest
+```{r}
+library(randomForest)
+m <- 26
+set.seed(100)
+rf_m <- randomForest(x = house[,2:80], y = house[,1], mtry = m, ntree = 1000,
+                     keep.forest = TRUE)
+renderPlot({
+  varImpPlot(rf_m, main = "Variable Importance")
+})
+```
 
-## CART
+## Classification {data-width=450}
+### Classification Tree
+```{r}
+library(rpart)
+library(rpart.plot)
+set.seed(100)
+house$HighPrice <- ifelse(house$SalePrice >= 180000, 1, 0)
+dat.train <- house[train<-sample(1:nrow(house), floor(nrow(house)*0.7)),]
+dat.test <- house[-train,]
+# Set HighPrice
+house1  <- dat.train[2:81]
+# Build the tree
+tree <- rpart(HighPrice ~ ., data = house1, method = "class",
+              control = rpart.control(minsplit = 10, cp = 0.001))
+renderPlot({
+  prp(tree, cex = 0.6, extra = 0)
+})
+```
+
 
 Predictions {data-icon="fa-chart-line"}
 =====================================   
@@ -175,7 +204,6 @@ helpText("5-Excellent, 4-Good, 3-Average/Typical, 2-Fair, 1-Poor")
 sliderInput("kitQual", label = h5("Kitchen quality"),  value = 3, min = 1, max = 5)
 helpText("5-Excellent, 4-Good, 3-Average/Typical, 2-Fair, 1-Poor")
 sliderInput("garCars", label = h5("Size of garage in car capacity"), value = 2, min = 0, max = 10)
-
 ```
 
 Column {data-width=650}
@@ -188,5 +216,5 @@ About {data-icon="fa-table"}
 
 **Data Reference: ** [House Prices - Advanced Regression Techniques: Predict sales prices and practice feature engineering, RFs, and gradient boosting](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview)
 
-
+**Code Book: ** [Code Book of House Proces Analysis Data](https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/data/data_description.txt)
 
