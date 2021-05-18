@@ -284,7 +284,7 @@ Column {data-width=450}
 -----------------------------------------------------------------------
 
 ### Prediction Summary
-*Predictions are shown below. Random forest and LASSO regression predict the actual predicted price, while classification and regression tree (CART) predicts whether the house has a high sale price (1) or a low sale price (0). *
+
 ```{r}
 get_preds <- reactive({
   house_pred <- house %>%
@@ -372,18 +372,44 @@ renderLeaflet({
     addMarkers(~Long, ~Lat, popup = ~htmlEscape(Name))
 })
 
-## Backup plan: need to put images in the www directory
-
-# renderImage({
-#   if(get_preds()[,2] == 1){
-#     list(src = "www/house1.png", height = 250)
-#   }
-#   else{
-#     list(src = "www/house1.png", height = 250)
-#   }
-# })
 ```
 
+### Let's see ...
+```{r}
+## Backup plan: need to put images in the www directory
+get_cart <- reactive({
+  house_pred <- house %>%
+    select(OverallQual, Neighborhood, GrLivArea, ExterQual, GarageCars, TotalBsmtSF, 
+           '1stFlrSF', GarageArea, KitchenQual, YearBuilt, '2ndFlrSF', BsmtFinSF1,
+           BsmtQual, LotArea, SalePrice, HighPrice)
+  df_input <- data.frame(input$OverallQual, input$Neighborhood, input$GrLivArea, input$ExterQual,
+                 input$GarageCars, input$TotalBsmtSF, input$'1stFlrSF', input$GarageArea,
+                 input$KitchenQual, input$YearBuilt, input$'2ndFlrSF', input$BsmtFinSF1,
+                 input$BsmtQual, input$LotArea)
+  names(df_input) <- c("OverallQual", "Neighborhood", "GrLivArea", "ExterQual", "GarageCars", 
+                       "TotalBsmtSF", '1stFlrSF', "GarageArea", "KitchenQual", "YearBuilt", 
+                       '2ndFlrSF', "BsmtFinSF1", "BsmtQual", "LotArea")
+  
+  # cart
+  house_pred1 <- house_pred %>%
+      select(-SalePrice)
+  tree1 <- rpart(HighPrice ~ ., data = house_pred1, method = "class",
+                control = rpart.control(minsplit = 10, cp = 0.001))
+  # Prune the tree
+  bestcp1 <- tree1$cptable[which.min(tree1$cptable[, "xerror"]), "CP"]
+  tree.pruned1 <- prune(tree1, cp = bestcp1)
+  pred_cart <- as.numeric(predict(tree.pruned1, df_input, type = "class")) - 1
+  out <- pred_cart
+})
+renderImage({
+  if(as.numeric(get_cart()) == 1){
+    list(src = "www/rich.png", height = 250)
+  }
+  else{
+    list(src = "www/poor.png", height = 250)
+  }
+})
+```
 
 About {data-icon="fa-table"}
 =====================================     
@@ -394,11 +420,15 @@ About {data-icon="fa-table"}
 
 + Instruction: There are 3 sections. The first section shows the sale prices by different variables along with some geographic features. The second section shows the the importance of each variable when doing prediction using different models. The third section shows the variables selected by the user and the corresponding predicted price.
 
-+ Prediction Models: Three models are used for prediction, including Random Forest, LASSO Regression, and classification and regression tree (CART). Random Forest and LASSO Regression predict the actual predicted price, while CART predicts whether the house has a high sale price (1) or a low sale price (0).
++ Prediction Models: Three models are used for prediction, including Random Forest, LASSO Regression, and classification and regression tree (CART). Random Forest and LASSO Regression predict the actual predicted price, while CART predicts whether the house has a high sale price or a low sale price. When CART returns a low sale price, a poor house picture will be displayed. When CART returns a high sale price, a luxury house picture will be displayed.
 
 + **Data Reference: ** [House Prices - Advanced Regression Techniques: Predict sales prices and practice feature engineering, RFs, and gradient boosting](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview)
 
 + **Photo Reference: ** [Bend Custom Home Builders](https://bendcustomhomebuilders.com/custom-homes/)
+
++ **Photo Reference: ** [Poor House](https://unsplash.com/photos/XpMd2mRX7Hk)
+
++ **Photo Reference: ** [Rich House](https://unsplash.com/photos/RKdLlTyjm5g)
 
 + **Code Book: ** [Code Book of House Proces Analysis Data](https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/data/data_description.txt)
 
