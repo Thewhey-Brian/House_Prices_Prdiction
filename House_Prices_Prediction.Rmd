@@ -414,7 +414,7 @@ There are 3 sections. The first section shows the sale prices by different varia
 + ## **Prediction Models: ** 
 Three models are used for prediction, including Random Forest, LASSO Regression, and classification and regression tree (CART). Random Forest and LASSO Regression predict the actual predicted price, while CART predicts whether the house has a high sale price or a low sale price. When CART returns a low sale price, a poor house picture will be displayed. When CART returns a high sale price, a luxury house picture will be displayed.
 
-\\
+\
 
 
 + **Data Reference: ** [House Prices - Advanced Regression Techniques: Predict sales prices and practice feature engineering, RFs, and gradient boosting](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview)
