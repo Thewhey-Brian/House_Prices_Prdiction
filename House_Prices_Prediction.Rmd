@@ -78,7 +78,7 @@ Column {data-width=350}
 ### 
 
 ```{r}
-knitr::include_graphics("https://opencasestudies.github.io/img/icon-bahi.png")
+knitr::include_graphics("https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/Daco_1709506.png?raw=true")
 #plot(house %>% select(SalePrice, OverallQual, Neighborhood, GrLivArea, ExterQual, TotalBsmtSF))
 ```
 
