@@ -93,8 +93,7 @@ Somerset,42.05202886092242, -93.64514354404335
 Stone Brook,42.05974506919148, -93.6376352032556"
 ))
 
-leafletOutput("leaflet_map")
-output$leaflet_map <- renderLeaflet({
+ renderLeaflet({
   leaflet(df) %>% addTiles() %>% addMarkers(~Long, ~Lat, popup = ~htmlEscape(Name))
 })
 ```
