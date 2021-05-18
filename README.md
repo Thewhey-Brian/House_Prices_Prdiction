@@ -18,17 +18,14 @@ Our App runs on flexdashboard/Shiny platform in statistical software R. Here is 
 + library(leaflet)
 + library(htmltools)
 + library(kableExtra)
-+ library(knitr)
 + library(glmnet)
 + library(randomForest)
 + library(rpart)
 + library(rpart.plot)
-+ library(tidyverse)
-+ library(skimr)
 
 ## 3. Division of work:
 
-+ Brian Guo worked on LASSO regression prediction model.
++ Brian (Xinyu) Guo worked on LASSO regression prediction model.
 + Qier Meng worked on data rearrangement, data imputation and Random Forest prediction model.
 + Sindy Du worked on CART prediction model.
 + Xiaoyan Zhang worked on cleaning up the geographic features and map display.
