@@ -371,6 +371,17 @@ renderLeaflet({
     addTiles() %>% 
     addMarkers(~Long, ~Lat, popup = ~htmlEscape(Name))
 })
+
+## Backup plan: need to put images in the www directory
+
+# renderImage({
+#   if(as.numeric(get_preds()[,2])-1 == 1){
+#     list(src = "www/house1.png", height = 250)
+#   }
+#   else{
+#     list(src = "www/house1.png", height = 250)
+#   }
+# })
 ```
 
 
