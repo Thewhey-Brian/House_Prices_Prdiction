@@ -7,7 +7,26 @@ Thank you for checking out our App! The data is from Kaggle and it describes alm
 
 + Prediction Models: Three models are used for prediction, including Random Forest, LASSO Regression, and classification and regression tree (CART). Random Forest and LASSO Regression predict the actual predicted price, while CART predicts whether the house has a high sale price or a low sale price. When CART returns a low sale price, a poor house picture will be displayed. When CART returns a high sale price, a luxury house picture will be displayed.
 
-## 2. Division of work:
+## 2. Packages:
+
+Our App runs on flexdashboard/Shiny platform in statistical software R. Here is a list of packages or library required for running:
+
++ library(flexdashboard)
++ library(plotly)
++ library(ggplot2)
++ library(tidyverse)
++ library(leaflet)
++ library(htmltools)
++ library(kableExtra)
++ library(knitr)
++ library(glmnet)
++ library(randomForest)
++ library(rpart)
++ library(rpart.plot)
++ library(tidyverse)
++ library(skimr)
+
+## 3. Division of work:
 
 + Brian Guo worked on LASSO regression prediction model.
 + Qier Meng worked on data rearrangement, data imputation and Random Forest prediction model.
@@ -15,7 +34,7 @@ Thank you for checking out our App! The data is from Kaggle and it describes alm
 + Xiaoyan Zhang worked on cleaning up the geographic features and map display.
 + All four members worked on putting up the plots and the results together.
 
-## 3. Links:
+## 4. Links:
 
 + Link to App:
 
