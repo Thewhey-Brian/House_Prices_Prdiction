@@ -393,7 +393,7 @@ About {data-icon="fa-table"}
 
 + Team Members: Brian Guo, Qier Meng, Sindy Du, Xiaoyan Zhang
 
-+ Introduction: Thank you for checking out our App! The data is from Kaggle and it describes almost every aspect of the residential homes in Ames, Iowa. By including different explanatory variables chosen from 79, our App is able to predict the sale price of the house. 
++ Introduction: Thank you for checking out our App! An accurate prediction on the house price is important to prospective homeowners, developers, investors and other real estate market participants. The availability of a house price prediction model helps fill up an important information gap and improve the efficiency of the real estate market. The data is from Kaggle and it describes almost every aspect of the residential homes in Ames, Iowa. By including different explanatory variables chosen from 79, our App is able to predict the sale price of the house. 
 
 + Instruction: There are 3 sections. The first section shows the sale prices by different variables along with some geographic features. The second section shows the the importance of each variable when doing prediction using different models. The third section shows the variables selected by the user and the corresponding predicted price.
 
