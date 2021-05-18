@@ -65,14 +65,6 @@ Column {data-width=350}
 
 ```{r}
 
-data <- read.csv("https://raw.githubusercontent.com/Thewhey-Brian/House_Prices_Prdiction/main/data/train.csv")
-selectInput(
-  inputId = "location",
-  label = h3("location"),
-  choices = data$Neighborhood,
-  selected = "Bloomington Heights"
-)
-
 
 df <- read.csv(textConnection(
   "Name,Lat,Long
