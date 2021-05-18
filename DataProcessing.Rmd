@@ -112,6 +112,34 @@ plot(rf_m)
 varImpPlot(rf_m, cex = 0.6)
 ```
 
+```{r}
+house_pred <- house %>%
+  select(OverallQual, Neighborhood, GrLivArea, ExterQual, GarageCars, TotalBsmtSF, 
+         '1stFlrSF', GarageArea, KitchenQual, YearBuilt, '2ndFlrSF', BsmtFinSF1,
+         BsmtQual, LotArea, SalePrice, HighPrice)
+
+dim(house_pred)
+```
+
+```{r, eval = FALSE}
+set.seed(100)
+tune_rf <- tuneRF(x = house_pred[,1:14], y = house_pred[,15], ntreeTry = 500)
+tune_rf
+tune_rf[which.min(tune_rf[,2]),1]
+```
+```{r}
+m_pred <- 4
+set.seed(100)
+rf_pred <- randomForest(x = house_pred[,1:14], y = house_pred[,15], mtry = m_pred, ntree = 500,
+                     keep.forest = TRUE)
+plot(rf_pred)
+varImpPlot(rf_pred, cex = 0.6)
+```
+```{r, eval=FALSE}
+# save data
+save(rf_m, rf_pred, file ="rf.rda")
+```
+
 ## CART
 
 ```{r}
@@ -167,4 +195,3 @@ fcts <- as.data.frame(as.matrix(coef(best_model))) %>%
   arrange(s0)
 fcts
 ```
-
