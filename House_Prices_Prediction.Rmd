@@ -310,7 +310,7 @@ get_preds <- reactive({
   # Prune the tree
   bestcp1 <- tree1$cptable[which.min(tree1$cptable[, "xerror"]), "CP"]
   tree.pruned1 <- prune(tree1, cp = bestcp1)
-  pred_card <- predict(tree.pruned1, df_input, type = "class")
+  pred_cart <- predict(tree.pruned1, df_input, type = "class")
   # lasso
   df_input_lasso <- df_input
   df_input_lasso$SalePrice <- 1
@@ -324,8 +324,11 @@ get_preds <- reactive({
   best_model <- glmnet(X_train, Y_train, alpha = 1, lambda = best_lambda)
   X_text <- X[1, ]
   pred_lasso <- predict(best_model, newx = t(X_text))
+  
+  pred_cart <- ifelse(as.numeric(pred_cart)-1 == 1, "High Price", "Low Price")
+  
   out <- data.frame("Prediction Model" = c("Random Forest", "LASSO Regression", "CART"), 
-                    "Predicted Price" = c(pred_rf, pred_lasso, pred_card))
+                    "Predicted Price" = c(round(pred_rf), round(pred_lasso), pred_cart))
 })
 renderDataTable({
     get_preds()
