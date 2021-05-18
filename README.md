@@ -12,16 +12,16 @@ Thank you for checking out our App! An accurate prediction on the house price is
 Our App runs on flexdashboard/Shiny platform in statistical software R. Here is a list of packages or library required for running:
 
 + library(flexdashboard)
-+ library(plotly)
-+ library(ggplot2)
-+ library(tidyverse)
-+ library(leaflet)
-+ library(htmltools)
-+ library(kableExtra)
-+ library(glmnet)
-+ library(randomForest)
-+ library(rpart)
-+ library(rpart.plot)
+, library(plotly)
+, library(ggplot2)
+, library(tidyverse)
+, library(leaflet)
+, library(htmltools)
+, library(kableExtra)
+, library(glmnet)
+, library(randomForest)
+, library(rpart)
+, library(rpart.plot)
 
 ## 3. Division of work:
 
