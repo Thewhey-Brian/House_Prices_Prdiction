@@ -77,7 +77,6 @@ renderPlotly({
 Column {data-width=350}
 -----------------------------------------------------------------------
 ### 
-
 ```{r}
 knitr::include_graphics("https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/Daco_1709506.png?raw=true")
 #plot(house %>% select(SalePrice, OverallQual, Neighborhood, GrLivArea, ExterQual, TotalBsmtSF))
@@ -285,6 +284,7 @@ Column {data-width=450}
 -----------------------------------------------------------------------
 
 ### Prediction Summary
+*Predictions are shown below. Random forest and LASSO regression predict the actual predicted price, while classification and regression tree (CART) predicts whether the house has a high sale price (1) or a low sale price (0). *
 ```{r}
 get_preds <- reactive({
   house_pred <- house %>%
@@ -310,7 +310,7 @@ get_preds <- reactive({
   # Prune the tree
   bestcp1 <- tree1$cptable[which.min(tree1$cptable[, "xerror"]), "CP"]
   tree.pruned1 <- prune(tree1, cp = bestcp1)
-  pred_card <- predict(tree.pruned1, df_input, type = "class")
+  pred_card <- as.numeric(predict(tree.pruned1, df_input, type = "class")) - 1
   # lasso
   df_input_lasso <- df_input
   df_input_lasso$SalePrice <- 1
@@ -373,7 +373,19 @@ renderLeaflet({
 About {data-icon="fa-table"}
 =====================================     
 
-**Data Reference: ** [House Prices - Advanced Regression Techniques: Predict sales prices and practice feature engineering, RFs, and gradient boosting](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview)
++ Team Members: Brian Guo, Qier Meng, Sindy Du, Xiaoyan Zhang
 
-**Code Book: ** [Code Book of House Proces Analysis Data](https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/data/data_description.txt)
++ Introduction: Thank you for checking out our App! The data is from Kaggle and it describes almost every aspect of the residential homes in Ames, Iowa. By including different explanatory variables chosen from 79, our App is able to predict the sale price of the house. 
+
++ Instruction: There are 3 sections. The first section shows the sale prices by different variables along with some geographic features. The second section shows the the importance of each variable when doing prediction using different models. The third section shows the variables selected by the user and the corresponding predicted price.
+
++ Prediction Models: Three models are used for prediction, including Random Forest, LASSO Regression, and classification and regression tree (CART). Random Forest and LASSO Regression predict the actual predicted price, while CART predicts whether the house has a high sale price (1) or a low sale price (0).
+
++ **Data Reference: ** [House Prices - Advanced Regression Techniques: Predict sales prices and practice feature engineering, RFs, and gradient boosting](https://www.kaggle.com/c/house-prices-advanced-regression-techniques/overview)
+
++ **Photo Reference: ** [Bend Custom Home Builders](https://bendcustomhomebuilders.com/custom-homes/)
+
++ **Code Book: ** [Code Book of House Proces Analysis Data](https://github.com/Thewhey-Brian/House_Prices_Prdiction/blob/main/data/data_description.txt)
+
+
 
